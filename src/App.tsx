@@ -6,11 +6,14 @@ import { Toaster } from "./components/ui/sonner";
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserMenu } from "./components/UserMenu";
 import { migrateProjectsData } from "./utils/dataMigration";
+import { AlertTriangle } from "lucide-react";
+import { Button } from "./components/ui/button";
 import bldriqLogo from "figma:asset/a2929011f50be4b54dd5c1378acb40f8b0742766.png";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("budget-builder");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [showTestingModal, setShowTestingModal] = useState(true);
 
   // Run data migration on mount
   useEffect(() => {
@@ -24,7 +27,42 @@ export default function App() {
 
   return (
     <AuthProvider>
+      {/* Testing Phase Modal */}
+      {showTestingModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="bg-[#F7931E] rounded-full p-3">
+                <AlertTriangle className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl mb-2">Preview Version Only</h2>
+                <p className="text-muted-foreground">
+                  This tool is still in development and is not intended for active project budgeting.
+                </p>
+              </div>
+            </div>
+            <Button 
+              onClick={() => setShowTestingModal(false)}
+              className="w-full bg-[#1B2D4F] hover:bg-[#1B2D4F]/90"
+            >
+              I Understand
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="min-h-screen bg-background">
+        {/* Persistent Testing Banner */}
+        <div className="bg-[#F7931E] text-white py-2 px-4">
+          <div className="max-w-6xl mx-auto flex items-center justify-center gap-2 text-sm md:text-base">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+            <p className="text-center">
+              <strong>Preview version only.</strong> This tool is still in development and is not intended for active project budgeting.
+            </p>
+          </div>
+        </div>
+
         <div className="border-b bg-white">
           <div className="max-w-6xl mx-auto p-4 md:p-6">
             <div className="flex items-center justify-between gap-3 md:gap-4 mb-2">
