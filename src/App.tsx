@@ -7,7 +7,6 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { UserMenu } from "./components/UserMenu";
 import { migrateProjectsData } from "./utils/dataMigration";
 import { AlertTriangle } from "lucide-react";
-import { Button } from "./components/ui/button";
 import bldriqLogo from "figma:asset/a2929011f50be4b54dd5c1378acb40f8b0742766.png";
 
 export default function App() {
@@ -29,32 +28,41 @@ export default function App() {
     <AuthProvider>
       {/* Testing Phase Modal */}
       {showTestingModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowTestingModal(false)}
+        >
+          <div 
+            className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-start gap-4 mb-4">
-              <div className="bg-[#F7931E] rounded-full p-3">
+              <div className="bg-[#F7931E] rounded-full p-3 flex-shrink-0">
                 <AlertTriangle className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl mb-2">Preview Version Only</h2>
-                <p className="text-muted-foreground">
+                <h2 className="text-xl mb-2" style={{ fontWeight: 600 }}>Preview Version Only</h2>
+                <p className="text-gray-600">
                   This tool is still in development and is not intended for active project budgeting.
                 </p>
               </div>
             </div>
-            <Button 
+            <button 
               onClick={() => setShowTestingModal(false)}
-              className="w-full bg-[#1B2D4F] hover:bg-[#1B2D4F]/90"
+              className="w-full py-2.5 px-4 rounded-md text-white transition-colors"
+              style={{ backgroundColor: '#1B2D4F' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#15243d'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1B2D4F'}
             >
               I Understand
-            </Button>
+            </button>
           </div>
         </div>
       )}
 
       <div className="min-h-screen bg-background">
         {/* Persistent Testing Banner */}
-        <div className="bg-[#F7931E] text-white py-2 px-4">
+        <div className="text-white py-2 px-4" style={{ backgroundColor: '#F7931E' }}>
           <div className="max-w-6xl mx-auto flex items-center justify-center gap-2 text-sm md:text-base">
             <AlertTriangle className="h-4 w-4 flex-shrink-0" />
             <p className="text-center">
