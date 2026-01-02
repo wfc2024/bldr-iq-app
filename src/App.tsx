@@ -33,7 +33,7 @@ export default function App() {
           onClick={() => setShowTestingModal(false)}
         >
           <div 
-            className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+            className="bg-white rounded-lg shadow-xl max-w-sm w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start gap-4 mb-4">
