@@ -6,9 +6,8 @@ import { Toaster } from "./components/ui/sonner";
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserMenu } from "./components/UserMenu";
 import { migrateProjectsData } from "./utils/dataMigration";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, FileWarning } from "lucide-react";
 import bldriqLogo from "figma:asset/a2929011f50be4b54dd5c1378acb40f8b0742766.png";
-import disclaimerIcon from "figma:asset/182286e22a727165837ee28644377d431b03ac46.png";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("budget-builder");
@@ -41,7 +40,9 @@ export default function App() {
             <div className="text-center space-y-5">
               {/* Icon */}
               <div className="flex justify-center mb-2">
-                <img src={disclaimerIcon} alt="" className="h-16 w-16" />
+                <div className="bg-gray-100 rounded-full p-4">
+                  <FileWarning className="h-8 w-8 text-gray-600" />
+                </div>
               </div>
               
               {/* Title */}
