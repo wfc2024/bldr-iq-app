@@ -37,9 +37,9 @@ export default function App() {
             style={{ maxWidth: '420px' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-center space-y-5">
+            <div className="text-center space-y-6">
               {/* Icon */}
-              <div className="flex justify-center mb-2">
+              <div className="flex justify-center">
                 <div className="bg-gray-100 rounded-full p-4">
                   <FileWarning className="h-8 w-8 text-gray-600" />
                 </div>
@@ -56,7 +56,7 @@ export default function App() {
               {/* Button */}
               <button 
                 onClick={() => setShowTestingModal(false)}
-                className="w-full py-3 px-4 rounded-md text-white transition-colors mt-2"
+                className="w-full py-3 px-4 rounded-md text-white transition-colors"
                 style={{ backgroundColor: '#1B2D4F', fontWeight: 500 }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#15243d'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1B2D4F'}
