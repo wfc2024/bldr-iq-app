@@ -14,6 +14,11 @@ import { dataService } from "../services/dataService";
 import { useAuth } from "../contexts/AuthContext";
 import { formatCurrency } from "../utils/formatCurrency";
 import { calculateCategoryBreakdown } from "../utils/categoryBreakdown";
+import { BudgetSummaryChart } from "./BudgetSummaryChart";
+import { AssemblySelector } from "./AssemblySelector";
+import { HelpTooltip } from "./HelpTooltip";
+import { helpText } from "../data/helpText";
+import { Assembly } from "../data/assemblies";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -724,6 +729,9 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                       </div>
                     )}
 
+                    {/* Cost Breakdown Visual */}
+                    <BudgetSummaryChart lineItems={project.lineItems} />
+
                     <div className="space-y-2">
                       <Label>Line Items</Label>
                       {project.lineItems.map((item) => (
@@ -775,6 +783,19 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                         <span>Grand Total:</span>
                         <span>{formatCurrency(project.grandTotal)}</span>
                       </div>
+                      <div className="pt-3 border-t bg-blue-50/50 dark:bg-blue-950/20 -mx-4 md:-mx-6 px-4 md:px-6 py-3 mt-3">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs uppercase tracking-wide text-muted-foreground">Preliminary Budget Range (±15%)</span>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">Low Estimate:</span>
+                            <span className="text-sm">{formatCurrency(project.grandTotal * 0.85)}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">High Estimate:</span>
+                            <span className="text-sm">{formatCurrency(project.grandTotal * 1.15)}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </CollapsibleContent>
@@ -795,7 +816,7 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                   {displayProject.lineItems.map((item) => (
                     <div 
                       key={item.id} 
-                      className={`border p-3 md:p-4 rounded-lg space-y-3 md:space-y-4 ${
+                      className={`border p-3 md:p-4 rounded-lg space-y-3 ${
                         item.scopeName && item.quantity === 0 
                           ? 'border-amber-500 bg-amber-50/30 dark:bg-amber-950/20' 
                           : ''
@@ -807,77 +828,77 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                           <span>Placeholder - Quantity is zero</span>
                         </div>
                       )}
-                      <div className="flex flex-col md:flex-row gap-3 md:gap-4">
-                        <div className="flex-1 space-y-2">
-                          <Label>Scope of Work</Label>
-                          <Select
-                            value={item.scopeName}
-                            onValueChange={(value) => updateEditedLineItemScope(item.id, value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select scope" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {scopesByCategory.map(({ category, scopes }) => (
-                                <div key={category}>
-                                  <div className="px-2 py-1.5 font-medium text-sm text-muted-foreground">
-                                    {category}
-                                  </div>
-                                  {scopes.map((scope) => (
-                                    <SelectItem key={scope.name} value={scope.name} className="pl-4">
-                                      {scope.name}
-                                    </SelectItem>
-                                  ))}
+                      
+                      {/* Scope Selection */}
+                      <div className="space-y-2">
+                        <Label>Scope of Work</Label>
+                        <Select
+                          value={item.scopeName}
+                          onValueChange={(value) => updateEditedLineItemScope(item.id, value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select scope" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {scopesByCategory.map(({ category, scopes }) => (
+                              <div key={category}>
+                                <div className="px-2 py-1.5 font-medium text-sm text-muted-foreground">
+                                  {category}
                                 </div>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        
-                        {item.scopeName && (
-                          <>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 md:flex-none">
-                              <div className="space-y-2">
-                                <Label>Unit Type</Label>
-                                <Input value={item.unitType} disabled className="text-sm" />
+                                {scopes.map((scope) => (
+                                  <SelectItem key={scope.name} value={scope.name} className="pl-4">
+                                    {scope.name}
+                                  </SelectItem>
+                                ))}
                               </div>
-                              
-                              <div className="space-y-2">
-                                <Label>Quantity</Label>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  step="0.01"
-                                  value={item.quantity || ""}
-                                  onChange={(e) => updateEditedLineItemQuantity(item.id, parseFloat(e.target.value) || 0)}
-                                  className="text-sm"
-                                />
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Label>Unit Cost</Label>
-                                <Input
-                                  value={`$${item.unitCost.toFixed(2)}`}
-                                  disabled
-                                  className="text-sm"
-                                />
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Label>Total</Label>
-                                <Input
-                                  value={`$${item.total.toFixed(2)}`}
-                                  disabled
-                                  className="text-sm"
-                                />
-                              </div>
-                            </div>
-                          </>
-                        )}
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       
-                      <div className="flex items-center gap-3">
-                        {item.scopeName && (
+                      {/* Unit Details Grid */}
+                      {item.scopeName && (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div className="space-y-2">
+                            <Label>Unit Type</Label>
+                            <Input value={item.unitType} disabled className="text-sm bg-muted" />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label>Quantity</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={item.quantity || ""}
+                              onChange={(e) => updateEditedLineItemQuantity(item.id, parseFloat(e.target.value) || 0)}
+                              className="text-sm"
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label>Unit Cost</Label>
+                            <Input
+                              value={formatCurrency(item.unitCost)}
+                              disabled
+                              className="text-sm bg-muted"
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label>Total</Label>
+                            <Input
+                              value={formatCurrency(item.total)}
+                              disabled
+                              className="text-sm bg-muted"
+                            />
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Notes and Delete */}
+                      {item.scopeName && (
+                        <div className="flex gap-3">
                           <div className="flex-1 space-y-2">
                             <Label>Line Item Notes</Label>
                             <Textarea
@@ -888,17 +909,30 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                               className="text-sm"
                             />
                           </div>
-                        )}
-                        
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeLineItemFromEdit(item.id)}
-                          className="self-end mb-2"
-                        >
-                          <Trash2 className="size-4 text-destructive" />
-                        </Button>
-                      </div>
+                          
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeLineItemFromEdit(item.id)}
+                            className="self-end"
+                          >
+                            <Trash2 className="size-4 text-destructive" />
+                          </Button>
+                        </div>
+                      )}
+                      
+                      {/* Delete button for items without scope */}
+                      {!item.scopeName && (
+                        <div className="flex justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeLineItemFromEdit(item.id)}
+                          >
+                            <Trash2 className="size-4 text-destructive" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -906,15 +940,15 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                 <div className="pt-4 border-t space-y-2 text-sm md:text-base">
                   <div className="flex justify-between items-center">
                     <span>Subtotal:</span>
-                    <span>${displayProject.subtotal.toFixed(2)}</span>
+                    <span>{formatCurrency(displayProject.subtotal)}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>GC Markup ({displayProject.gcMarkupPercentage}%):</span>
-                    <span>${(displayProject.grandTotal - displayProject.subtotal).toFixed(2)}</span>
+                    <span>{formatCurrency(displayProject.grandTotal - displayProject.subtotal)}</span>
                   </div>
                   <div className="flex justify-between items-center pt-2 border-t">
                     <span>Grand Total:</span>
-                    <span>${displayProject.grandTotal.toFixed(2)}</span>
+                    <span>{formatCurrency(displayProject.grandTotal)}</span>
                   </div>
                 </div>
               </CardContent>
