@@ -31,6 +31,7 @@ import {
 } from "./ui/alert-dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import jsPDF from "jspdf";
+import React from "react";
 
 interface ProjectsTabProps {
   refreshTrigger: number;
@@ -492,6 +493,29 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
     });
   };
 
+  const insertLineItemAt = (index: number) => {
+    if (!editedProject) return;
+
+    const newLineItem: LineItem = {
+      id: crypto.randomUUID(),
+      scopeName: "",
+      unitType: "",
+      quantity: 0,
+      unitCost: 0,
+      total: 0,
+      notes: "",
+    };
+
+    const newItems = [...editedProject.lineItems];
+    newItems.splice(index, 0, newLineItem);
+    
+    setEditedProject({
+      ...editedProject,
+      lineItems: newItems,
+    });
+    toast.success('Line item inserted');
+  };
+
   const removeLineItemFromEdit = (id: string) => {
     if (!editedProject) return;
 
@@ -804,6 +828,23 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
 
             {isEditing && (
               <CardContent className="space-y-4 p-4 md:p-6">
+                {/* Sticky Add Line Item Button - Only show when there are line items */}
+                {displayProject.lineItems.length > 0 && (
+                  <div className="fixed bottom-6 right-6 z-50">
+                    <Button
+                      onClick={addLineItemToEdit}
+                      size="lg"
+                      className="shadow-lg"
+                      style={{ backgroundColor: '#F7931E' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e68a1b'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#F7931E'}
+                    >
+                      <Plus className="size-5 mr-2" />
+                      Add Line Item
+                    </Button>
+                  </div>
+                )}
+
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                   <Label>Line Items</Label>
                   <Button onClick={addLineItemToEdit} size="sm" className="w-full sm:w-auto">
@@ -812,130 +853,151 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                   </Button>
                 </div>
 
-                <div className="space-y-4">
-                  {displayProject.lineItems.map((item) => (
-                    <div 
-                      key={item.id} 
-                      className={`border p-3 md:p-4 rounded-lg space-y-3 ${
-                        item.scopeName && item.quantity === 0 
-                          ? 'border-amber-500 bg-amber-50/30 dark:bg-amber-950/20' 
-                          : ''
-                      }`}
-                    >
-                      {item.scopeName && item.quantity === 0 && (
-                        <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-sm">
-                          <AlertCircle className="size-4" />
-                          <span>Placeholder - Quantity is zero</span>
+                {displayProject.lineItems.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground text-sm">
+                    No line items yet. Click "Add Line Item" to get started.
+                  </div>
+                ) : (
+                  <div className="space-y-0">
+                    {displayProject.lineItems.map((item, index) => (
+                      <React.Fragment key={item.id}>
+                        {/* Insert button - appears before this item */}
+                        <div className="flex justify-center py-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => insertLineItemAt(index)}
+                            className="text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                          >
+                            <Plus className="size-3 mr-1" />
+                            Insert line item here
+                          </Button>
                         </div>
-                      )}
-                      
-                      {/* Scope Selection */}
-                      <div className="space-y-2">
-                        <Label>Scope of Work</Label>
-                        <Select
-                          value={item.scopeName}
-                          onValueChange={(value) => updateEditedLineItemScope(item.id, value)}
+                        
+                        {/* Line Item Card */}
+                        <div 
+                          className={`border p-3 md:p-4 rounded-lg space-y-3 ${
+                            item.scopeName && item.quantity === 0 
+                              ? 'border-amber-500 bg-amber-50/30 dark:bg-amber-950/20' 
+                              : ''
+                          }`}
                         >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select scope" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {scopesByCategory.map(({ category, scopes }) => (
-                              <div key={category}>
-                                <div className="px-2 py-1.5 font-medium text-sm text-muted-foreground">
-                                  {category}
-                                </div>
-                                {scopes.map((scope) => (
-                                  <SelectItem key={scope.name} value={scope.name} className="pl-4">
-                                    {scope.name}
-                                  </SelectItem>
+                          {item.quantity === 0 && (
+                            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-sm">
+                              <AlertCircle className="size-4" />
+                              <span>Placeholder - Quantity is zero</span>
+                            </div>
+                          )}
+                          
+                          {/* Scope Selection */}
+                          <div className="space-y-2">
+                            <Label>Scope of Work</Label>
+                            <Select
+                              value={item.scopeName}
+                              onValueChange={(value) => updateEditedLineItemScope(item.id, value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select scope" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {scopesByCategory.map(({ category, scopes }) => (
+                                  <div key={category}>
+                                    <div className="px-2 py-1.5 font-medium text-sm text-muted-foreground">
+                                      {category}
+                                    </div>
+                                    {scopes.map((scope) => (
+                                      <SelectItem key={scope.name} value={scope.name} className="pl-4">
+                                        {scope.name}
+                                      </SelectItem>
+                                    ))}
+                                  </div>
                                 ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          {/* Unit Details Grid */}
+                          {item.scopeName && (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                              <div className="space-y-2">
+                                <Label>Unit Type</Label>
+                                <Input value={item.unitType} disabled className="text-sm bg-muted" />
                               </div>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      {/* Unit Details Grid */}
-                      {item.scopeName && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          <div className="space-y-2">
-                            <Label>Unit Type</Label>
-                            <Input value={item.unitType} disabled className="text-sm bg-muted" />
-                          </div>
+                              
+                              <div className="space-y-2">
+                                <Label>Quantity</Label>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={item.quantity || ""}
+                                  onChange={(e) => updateEditedLineItemQuantity(item.id, parseFloat(e.target.value) || 0)}
+                                  className="text-sm"
+                                />
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label>Unit Cost</Label>
+                                <Input
+                                  value={formatCurrency(item.unitCost)}
+                                  disabled
+                                  className="text-sm bg-muted"
+                                />
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label>Total</Label>
+                                <Input
+                                  value={formatCurrency(item.total)}
+                                  disabled
+                                  className="text-sm bg-muted"
+                                />
+                              </div>
+                            </div>
+                          )}
                           
-                          <div className="space-y-2">
-                            <Label>Quantity</Label>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              value={item.quantity || ""}
-                              onChange={(e) => updateEditedLineItemQuantity(item.id, parseFloat(e.target.value) || 0)}
-                              className="text-sm"
-                            />
-                          </div>
+                          {/* Notes and Delete */}
+                          {item.scopeName && (
+                            <div className="flex gap-3">
+                              <div className="flex-1 space-y-2">
+                                <Label>Line Item Notes</Label>
+                                <Textarea
+                                  value={item.notes || ""}
+                                  onChange={(e) => updateEditedLineItemNotes(item.id, e.target.value)}
+                                  placeholder="Enter any notes for this line item"
+                                  rows={2}
+                                  className="text-sm"
+                                />
+                              </div>
+                              
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeLineItemFromEdit(item.id)}
+                                className="self-end"
+                              >
+                                <Trash2 className="size-4 text-destructive" />
+                              </Button>
+                            </div>
+                          )}
                           
-                          <div className="space-y-2">
-                            <Label>Unit Cost</Label>
-                            <Input
-                              value={formatCurrency(item.unitCost)}
-                              disabled
-                              className="text-sm bg-muted"
-                            />
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label>Total</Label>
-                            <Input
-                              value={formatCurrency(item.total)}
-                              disabled
-                              className="text-sm bg-muted"
-                            />
-                          </div>
+                          {/* Delete button for items without scope */}
+                          {!item.scopeName && (
+                            <div className="flex justify-end">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeLineItemFromEdit(item.id)}
+                              >
+                                <Trash2 className="size-4 text-destructive" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
-                      )}
-                      
-                      {/* Notes and Delete */}
-                      {item.scopeName && (
-                        <div className="flex gap-3">
-                          <div className="flex-1 space-y-2">
-                            <Label>Line Item Notes</Label>
-                            <Textarea
-                              value={item.notes || ""}
-                              onChange={(e) => updateEditedLineItemNotes(item.id, e.target.value)}
-                              placeholder="Enter any notes for this line item"
-                              rows={2}
-                              className="text-sm"
-                            />
-                          </div>
-                          
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeLineItemFromEdit(item.id)}
-                            className="self-end"
-                          >
-                            <Trash2 className="size-4 text-destructive" />
-                          </Button>
-                        </div>
-                      )}
-                      
-                      {/* Delete button for items without scope */}
-                      {!item.scopeName && (
-                        <div className="flex justify-end">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeLineItemFromEdit(item.id)}
-                          >
-                            <Trash2 className="size-4 text-destructive" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                )}
 
                 <div className="pt-4 border-t space-y-2 text-sm md:text-base">
                   <div className="flex justify-between items-center">
