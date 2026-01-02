@@ -33,24 +33,25 @@ export default function App() {
           onClick={() => setShowTestingModal(false)}
         >
           <div 
-            className="bg-white rounded-lg shadow-xl max-w-sm w-full p-6"
+            className="bg-white rounded-lg shadow-xl w-full p-6"
+            style={{ maxWidth: '420px' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start gap-4 mb-4">
-              <div className="bg-[#F7931E] rounded-full p-3 flex-shrink-0">
-                <AlertTriangle className="h-6 w-6 text-white" />
+            <div className="flex items-start gap-3 mb-6">
+              <div className="bg-[#F7931E] rounded-full p-2.5 flex-shrink-0">
+                <AlertTriangle className="h-5 w-5 text-white" />
               </div>
-              <div className="flex-1">
-                <h2 className="text-xl mb-2" style={{ fontWeight: 600 }}>Preview Version Only</h2>
-                <p className="text-gray-600">
+              <div className="flex-1 pt-0.5">
+                <h2 className="text-lg mb-2" style={{ fontWeight: 600 }}>Preview Version Only</h2>
+                <p className="text-sm text-gray-600 leading-relaxed">
                   This tool is still in development and is not intended for active project budgeting.
                 </p>
               </div>
             </div>
             <button 
               onClick={() => setShowTestingModal(false)}
-              className="w-full py-2.5 px-4 rounded-md text-white transition-colors"
-              style={{ backgroundColor: '#1B2D4F' }}
+              className="w-full py-2.5 px-4 rounded-md text-white transition-colors text-sm"
+              style={{ backgroundColor: '#1B2D4F', fontWeight: 500 }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#15243d'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1B2D4F'}
             >
