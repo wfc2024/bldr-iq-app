@@ -8,6 +8,7 @@ import { UserMenu } from "./components/UserMenu";
 import { migrateProjectsData } from "./utils/dataMigration";
 import { AlertTriangle } from "lucide-react";
 import bldriqLogo from "figma:asset/a2929011f50be4b54dd5c1378acb40f8b0742766.png";
+import disclaimerIcon from "figma:asset/182286e22a727165837ee28644377d431b03ac46.png";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("budget-builder");
@@ -33,30 +34,35 @@ export default function App() {
           onClick={() => setShowTestingModal(false)}
         >
           <div 
-            className="bg-white rounded-lg shadow-xl w-full p-6"
+            className="bg-white rounded-lg shadow-xl w-full p-8"
             style={{ maxWidth: '420px' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start gap-3 mb-6">
-              <div className="bg-[#F7931E] rounded-full p-2.5 flex-shrink-0">
-                <AlertTriangle className="h-5 w-5 text-white" />
+            <div className="text-center space-y-5">
+              {/* Icon */}
+              <div className="flex justify-center mb-2">
+                <img src={disclaimerIcon} alt="" className="h-16 w-16" />
               </div>
-              <div className="flex-1 pt-0.5">
-                <h2 className="text-lg mb-2" style={{ fontWeight: 600 }}>Preview Version Only</h2>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  This tool is still in development and is not intended for active project budgeting.
-                </p>
-              </div>
+              
+              {/* Title */}
+              <h2 className="text-xl" style={{ fontWeight: 600, color: '#1B2D4F' }}>Preview Version Only</h2>
+              
+              {/* Description */}
+              <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
+                This tool is still in development and <span style={{ color: '#DC2626', fontWeight: 500 }}>is not</span> intended for active project budgeting.
+              </p>
+              
+              {/* Button */}
+              <button 
+                onClick={() => setShowTestingModal(false)}
+                className="w-full py-3 px-4 rounded-md text-white transition-colors mt-2"
+                style={{ backgroundColor: '#1B2D4F', fontWeight: 500 }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#15243d'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1B2D4F'}
+              >
+                I Understand
+              </button>
             </div>
-            <button 
-              onClick={() => setShowTestingModal(false)}
-              className="w-full py-2.5 px-4 rounded-md text-white transition-colors text-sm"
-              style={{ backgroundColor: '#1B2D4F', fontWeight: 500 }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#15243d'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1B2D4F'}
-            >
-              I Understand
-            </button>
           </div>
         </div>
       )}
