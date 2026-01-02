@@ -33,31 +33,31 @@ export default function App() {
           onClick={() => setShowTestingModal(false)}
         >
           <div 
-            className="bg-white rounded-lg shadow-xl w-full p-8"
-            style={{ maxWidth: '420px' }}
+            className="bg-white rounded-lg shadow-xl w-full"
+            style={{ maxWidth: '420px', padding: '32px' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-center space-y-6">
+            <div className="text-center">
               {/* Icon */}
-              <div className="flex justify-center">
+              <div className="flex justify-center" style={{ marginBottom: '24px' }}>
                 <div className="bg-gray-100 rounded-full p-4">
                   <FileWarning className="h-8 w-8 text-gray-600" />
                 </div>
               </div>
               
               {/* Title */}
-              <h2 className="text-xl" style={{ fontWeight: 600, color: '#1B2D4F' }}>Preview Version Only</h2>
+              <h2 className="text-xl" style={{ fontWeight: 600, color: '#1B2D4F', marginBottom: '24px' }}>Preview Version Only</h2>
               
               {/* Description */}
-              <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
+              <p className="text-sm leading-relaxed" style={{ color: '#4B5563', marginBottom: '24px' }}>
                 This tool is still in development and <span style={{ color: '#DC2626', fontWeight: 500 }}>is not</span> intended for active project budgeting.
               </p>
               
               {/* Button */}
               <button 
                 onClick={() => setShowTestingModal(false)}
-                className="w-full py-3 px-4 rounded-md text-white transition-colors"
-                style={{ backgroundColor: '#1B2D4F', fontWeight: 500 }}
+                className="w-full rounded-md text-white transition-colors"
+                style={{ backgroundColor: '#1B2D4F', fontWeight: 500, padding: '12px 16px' }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#15243d'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1B2D4F'}
               >
