@@ -2,17 +2,36 @@ import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import { BudgetBuilderTab } from "./components/BudgetBuilderTab";
 import { ProjectsTab } from "./components/ProjectsTab";
+import { HelpTab } from "./components/HelpTab";
+import { GettingStartedModal } from "./components/GettingStartedModal";
 import { Toaster } from "./components/ui/sonner";
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserMenu } from "./components/UserMenu";
 import { migrateProjectsData } from "./utils/dataMigration";
 import { AlertTriangle, FileWarning } from "lucide-react";
 import bldriqLogo from "figma:asset/a2929011f50be4b54dd5c1378acb40f8b0742766.png";
+import Joyride, { CallBackProps, STATUS, Step } from "react-joyride";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("budget-builder");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [showTestingModal, setShowTestingModal] = useState(true);
+  const [showGettingStarted, setShowGettingStarted] = useState(false);
+  const [runTutorial, setRunTutorial] = useState(false);
+
+  // Check if user has seen the getting started modal
+  useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem("hasSeenWelcome");
+    if (!hasSeenWelcome) {
+      // Show getting started modal after testing modal is dismissed
+      const timer = setTimeout(() => {
+        if (!showTestingModal) {
+          setShowGettingStarted(true);
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [showTestingModal]);
 
   // Run data migration on mount
   useEffect(() => {
@@ -24,8 +43,76 @@ export default function App() {
     setActiveTab("projects");
   };
 
+  const handleStartTutorial = () => {
+    setShowGettingStarted(false);
+    localStorage.setItem("hasSeenWelcome", "true");
+    setActiveTab("budget-builder");
+    setTimeout(() => setRunTutorial(true), 300);
+  };
+
+  const handleSkipGettingStarted = () => {
+    setShowGettingStarted(false);
+    localStorage.setItem("hasSeenWelcome", "true");
+  };
+
+  const handleJoyrideCallback = (data: CallBackProps) => {
+    const { status } = data;
+    if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+      setRunTutorial(false);
+      localStorage.setItem("hasCompletedTutorial", "true");
+    }
+  };
+
+  // Tutorial steps
+  const tutorialSteps: Step[] = [
+    {
+      target: "body",
+      content: "Welcome to BLDR IQ Budget Builder! Let's take a quick tour to help you create your first construction budget.",
+      placement: "center",
+    },
+    {
+      target: '[data-tutorial="templates"]',
+      content: "Start by choosing a pre-built template for common project types, or click 'Start From Scratch' to build your own custom budget.",
+      disableBeacon: true,
+    },
+    {
+      target: "body",
+      content: "Once you select a template or start from scratch, you'll be able to add project details, line items, and see your budget calculations automatically.",
+      placement: "center",
+    },
+    {
+      target: "body",
+      content: "💡 Pro Tips: Hover over (?) icons for helpful explanations, and visit the Help tab anytime for detailed guidance. Happy budgeting!",
+      placement: "center",
+    },
+  ];
+
   return (
     <AuthProvider>
+      {/* Tutorial */}
+      <Joyride
+        steps={tutorialSteps}
+        run={runTutorial}
+        continuous
+        showProgress
+        showSkipButton
+        callback={handleJoyrideCallback}
+        styles={{
+          options: {
+            primaryColor: '#1B2D4F',
+            zIndex: 10000,
+          },
+        }}
+      />
+
+      {/* Getting Started Modal */}
+      {showGettingStarted && (
+        <GettingStartedModal
+          onClose={handleSkipGettingStarted}
+          onStartTutorial={handleStartTutorial}
+        />
+      )}
+
       {/* Testing Phase Modal */}
       {showTestingModal && (
         <div 
@@ -33,35 +120,37 @@ export default function App() {
           onClick={() => setShowTestingModal(false)}
         >
           <div 
-            className="bg-white rounded-lg shadow-xl w-full"
-            style={{ maxWidth: '420px', padding: '32px' }}
+            className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-y-auto"
+            style={{ maxHeight: '90vh' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-center">
+            <div className="text-center p-6 sm:p-8">
               {/* Icon */}
-              <div className="flex justify-center" style={{ marginBottom: '24px' }}>
-                <div className="bg-gray-100 rounded-full p-4">
-                  <FileWarning className="h-8 w-8 text-gray-600" />
+              <div className="flex justify-center mb-4">
+                <div className="bg-gray-100 rounded-full p-3">
+                  <FileWarning className="h-6 w-6 sm:h-8 sm:w-8 text-gray-600" />
                 </div>
               </div>
               
               {/* Title */}
-              <h2 className="text-xl" style={{ fontWeight: 600, color: '#1B2D4F', marginBottom: '24px' }}>Preview Version Only</h2>
+              <h2 className="text-lg sm:text-xl mb-4" style={{ fontWeight: 600, color: '#1B2D4F' }}>
+                Preview Version Only
+              </h2>
               
               {/* Description */}
-              <p className="text-sm leading-relaxed" style={{ color: '#4B5563', marginBottom: '24px' }}>
+              <p className="text-sm leading-relaxed mb-6" style={{ color: '#4B5563' }}>
                 This tool is still in development and <span style={{ color: '#DC2626', fontWeight: 500 }}>is not</span> intended for active project budgeting.
               </p>
               
               {/* Button */}
               <button 
                 onClick={() => setShowTestingModal(false)}
-                className="w-full rounded-md text-white transition-colors"
-                style={{ backgroundColor: '#1B2D4F', fontWeight: 500, padding: '12px 16px' }}
+                className="w-full rounded-md text-white transition-colors py-3 px-4"
+                style={{ backgroundColor: '#1B2D4F', fontWeight: 500 }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#15243d'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1B2D4F'}
               >
-                I Understand
+                I Understand - Continue
               </button>
             </div>
           </div>
@@ -110,6 +199,12 @@ export default function App() {
               >
                 Budget BLDR
               </TabsTrigger>
+              <TabsTrigger 
+                value="help"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent px-0 pb-3 md:pb-4 text-sm md:text-base"
+              >
+                Help
+              </TabsTrigger>
             </TabsList>
           </div>
         </div>
@@ -120,6 +215,10 @@ export default function App() {
 
         <TabsContent value="budget-builder" className="mt-0">
           <BudgetBuilderTab onProjectSaved={handleProjectSaved} />
+        </TabsContent>
+
+        <TabsContent value="help" className="mt-0">
+          <HelpTab onStartTutorial={handleStartTutorial} />
         </TabsContent>
       </Tabs>
 
