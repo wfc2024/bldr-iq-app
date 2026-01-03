@@ -22,7 +22,7 @@ export function HelpTab({ onStartTutorial }: HelpTabProps) {
       <div className="grid md:grid-cols-2 gap-6">
         <button
           onClick={onStartTutorial}
-          className="flex items-center gap-6 p-8 bg-white border-2 border-gray-200 rounded-xl hover:border-orange-300 hover:shadow-md transition-all text-left"
+          className="flex items-center gap-6 p-8 bg-white border-2 border-gray-200 rounded-xl hover:border-orange-300 hover:shadow-md transition-all text-left shadow-sm"
         >
           <div 
             className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center"
@@ -38,7 +38,7 @@ export function HelpTab({ onStartTutorial }: HelpTabProps) {
           </div>
         </button>
 
-        <div className="flex items-center gap-6 p-8 bg-white border-2 border-gray-200 rounded-xl">
+        <div className="flex items-center gap-6 p-8 bg-white border-2 border-gray-200 rounded-xl shadow-sm">
           <div 
             className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center bg-gray-100"
           >
@@ -54,7 +54,7 @@ export function HelpTab({ onStartTutorial }: HelpTabProps) {
       </div>
 
       {/* Quick Start Guide */}
-      <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+      <div className="bg-white border-2 border-gray-200 rounded-xl p-8 shadow-sm">
         <div className="flex items-center gap-3 mb-6">
           <BookOpen className="h-6 w-6" style={{ color: '#1B2D4F' }} />
           <h3 className="text-2xl" style={{ fontWeight: 600, color: '#1B2D4F' }}>
@@ -117,7 +117,7 @@ export function HelpTab({ onStartTutorial }: HelpTabProps) {
       </div>
 
       {/* Construction Terms Glossary */}
-      <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+      <div className="bg-white border-2 border-gray-200 rounded-xl p-8 shadow-sm">
         <div className="flex items-center gap-3 mb-6">
           <HelpCircle className="h-6 w-6" style={{ color: '#1B2D4F' }} />
           <h3 className="text-2xl" style={{ fontWeight: 600, color: '#1B2D4F' }}>
@@ -171,7 +171,7 @@ export function HelpTab({ onStartTutorial }: HelpTabProps) {
       </div>
 
       {/* FAQs */}
-      <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+      <div className="bg-white border-2 border-gray-200 rounded-xl p-8 shadow-sm">
         <div className="flex items-center gap-3 mb-6">
           <Lightbulb className="h-6 w-6" style={{ color: '#1B2D4F' }} />
           <h3 className="text-2xl" style={{ fontWeight: 600, color: '#1B2D4F' }}>
