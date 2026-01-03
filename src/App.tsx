@@ -99,23 +99,64 @@ export default function App() {
   const tutorialSteps: Step[] = [
     {
       target: "body",
-      content: "Welcome to BLDR IQ Budget Builder! Let's take a quick tour to help you create your first construction budget.",
+      content: (
+        <div>
+          <h3 className="text-lg mb-2" style={{ fontWeight: 600 }}>Welcome to BLDR IQ Budget Builder!</h3>
+          <p>Let's take a quick tour to help you create your first construction budget in just a few simple steps.</p>
+        </div>
+      ),
       placement: "center",
+      disableBeacon: true,
     },
     {
       target: '[data-tutorial="templates"]',
-      content: "Start by choosing a pre-built template for common project types, or click 'Start From Scratch' to build your own custom budget.",
+      content: (
+        <div>
+          <h3 className="text-lg mb-2" style={{ fontWeight: 600 }}>Step 1: Choose Your Starting Point</h3>
+          <p>Start by choosing a pre-built template for common project types (Office, Retail, Restaurant), or click 'Start From Scratch' to build your own custom budget.</p>
+        </div>
+      ),
+      placement: "bottom",
+      disableBeacon: true,
+    },
+    {
+      target: '[data-tutorial="templates"]',
+      content: (
+        <div>
+          <h3 className="text-lg mb-2" style={{ fontWeight: 600 }}>Step 2: Fill in Project Details</h3>
+          <p>After selecting a template or starting from scratch, you'll fill in project details like name, address, square footage, general conditions percentage, and GC markup.</p>
+        </div>
+      ),
+      placement: "bottom",
       disableBeacon: true,
     },
     {
       target: "body",
-      content: "After selecting a template or starting from scratch, you'll fill in project details like name and address, add line items for different scopes of work, and see your budget summary with helpful charts and breakdowns.",
+      content: (
+        <div>
+          <h3 className="text-lg mb-2" style={{ fontWeight: 600 }}>Step 3: Add Budget Line Items</h3>
+          <p>Add line items for different scopes of work (flooring, plumbing, electrical, etc.) with quantities and costs. The app calculates totals automatically!</p>
+        </div>
+      ),
       placement: "center",
+      disableBeacon: true,
     },
     {
       target: "body",
-      content: "💡 Pro Tips: Hover over (?) icons for helpful explanations throughout the app, use the Help tab for detailed guides and construction terms, and save your projects to come back later. Happy budgeting!",
+      content: (
+        <div>
+          <h3 className="text-lg mb-2" style={{ fontWeight: 600 }}>💡 Pro Tips</h3>
+          <ul className="list-disc list-inside space-y-1 text-sm">
+            <li>Hover over (?) icons for helpful explanations</li>
+            <li>Use the Help tab for detailed guides and construction terms</li>
+            <li>Save your projects to come back later</li>
+            <li>Export to PDF when ready to share</li>
+          </ul>
+          <p className="mt-3">Happy budgeting!</p>
+        </div>
+      ),
       placement: "center",
+      disableBeacon: true,
     },
   ];
 
