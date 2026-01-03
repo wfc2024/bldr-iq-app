@@ -12,7 +12,7 @@ export function GettingStartedModal({ onClose, onStartTutorial }: GettingStarted
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-lg shadow-xl w-full max-w-2xl flex flex-col"
+        className="bg-white rounded-lg shadow-xl w-full max-w-lg flex flex-col"
         style={{ maxHeight: '90vh' }}
         onClick={(e) => e.stopPropagation()}
       >
