@@ -62,6 +62,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
     }
   }, [resetForTutorial]);
 
+  // Auto start from scratch for tutorial
   useEffect(() => {
     if (autoStartFromScratch) {
       setShowTemplateSelector(false);
