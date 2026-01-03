@@ -49,10 +49,14 @@ export default function App() {
     localStorage.setItem("hasSeenWelcome", "true");
     setActiveTab("budget-builder");
     setResetBudgetBuilder(true);
+    // Wait longer for the reset to complete and template selector to render
     setTimeout(() => {
       setResetBudgetBuilder(false);
+    }, 100);
+    // Start tutorial after reset is complete
+    setTimeout(() => {
       setRunTutorial(true);
-    }, 300);
+    }, 800);
   };
 
   const handleSkipGettingStarted = () => {
@@ -79,7 +83,6 @@ export default function App() {
       target: '[data-tutorial="templates"]',
       content: "Start by choosing a pre-built template for common project types, or click 'Start From Scratch' to build your own custom budget.",
       disableBeacon: true,
-      spotlightClicks: true,
     },
     {
       target: '[data-tutorial="project-details"]',
@@ -107,6 +110,8 @@ export default function App() {
         continuous
         showProgress
         showSkipButton
+        scrollToFirstStep
+        disableScrolling={false}
         callback={handleJoyrideCallback}
         styles={{
           options: {
