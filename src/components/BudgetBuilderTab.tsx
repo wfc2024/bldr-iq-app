@@ -30,9 +30,10 @@ import {
 interface BudgetBuilderTabProps {
   onProjectSaved: () => void;
   resetForTutorial?: boolean;
+  autoStartFromScratch?: boolean;
 }
 
-export function BudgetBuilderTab({ onProjectSaved, resetForTutorial }: BudgetBuilderTabProps) {
+export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFromScratch }: BudgetBuilderTabProps) {
   const { user } = useAuth();
   const [showTemplateSelector, setShowTemplateSelector] = useState(true);
   const [projectName, setProjectName] = useState("");
@@ -60,6 +61,12 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial }: BudgetBui
       setShowNotIncluded(false);
     }
   }, [resetForTutorial]);
+
+  useEffect(() => {
+    if (autoStartFromScratch) {
+      setShowTemplateSelector(false);
+    }
+  }, [autoStartFromScratch]);
 
   const handleSelectTemplate = (template: ProjectTemplate) => {
     setProjectName(template.name);
