@@ -7,7 +7,7 @@ interface HelpTabProps {
 
 export function HelpTab({ onStartTutorial }: HelpTabProps) {
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-8">
+    <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-12">
       {/* Header */}
       <div>
         <h2 className="text-2xl md:text-3xl mb-2" style={{ fontWeight: 600, color: '#1B2D4F' }}>
