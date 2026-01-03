@@ -386,11 +386,12 @@ export function BudgetBuilderTab({ onProjectSaved }: BudgetBuilderTabProps) {
               <CardTitle className="text-lg md:text-xl">Project Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-tutorial="project-details">
                 <div className="space-y-2">
                   <Label htmlFor="projectName">Project Name</Label>
                   <Input
                     id="projectName"
+                    data-tutorial="project-name"
                     value={projectName}
                     onChange={(e) => setProjectName(e.target.value)}
                     placeholder="Enter project name"
@@ -406,6 +407,7 @@ export function BudgetBuilderTab({ onProjectSaved }: BudgetBuilderTabProps) {
                     type="number"
                     min="0"
                     step="0.01"
+                    data-tutorial="gc-controls"
                     value={generalConditions}
                     onChange={(e) => setGeneralConditions(e.target.value)}
                     placeholder="Enter general conditions %"
@@ -498,17 +500,20 @@ export function BudgetBuilderTab({ onProjectSaved }: BudgetBuilderTabProps) {
             <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
               <CardTitle className="text-lg md:text-xl">Line Items</CardTitle>
               <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-                <AssemblySelector onSelectAssembly={handleSelectAssembly} />
+                <div data-tutorial="assemblies">
+                  <AssemblySelector onSelectAssembly={handleSelectAssembly} />
+                </div>
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={handleExportPDF}
                   disabled={!projectName || !address || lineItems.length === 0}
+                  data-tutorial="save-export"
                 >
                   <FileDown className="size-4 mr-2" />
                   Export PDF
                 </Button>
-                <Button onClick={addLineItem} size="sm">
+                <Button onClick={addLineItem} size="sm" data-tutorial="add-line-item">
                   <Plus className="size-4 mr-2" />
                   Add Line Item
                 </Button>
@@ -520,7 +525,7 @@ export function BudgetBuilderTab({ onProjectSaved }: BudgetBuilderTabProps) {
                   No line items yet. Click "Add Line Item" to get started.
                 </div>
               ) : (
-                <div className="space-y-0">
+                <div className="space-y-0" data-tutorial="line-items-table">
                   {lineItems.map((item, index) => (
                     <React.Fragment key={item.id}>
                       {/* Insert button - appears before this item */}
@@ -708,7 +713,9 @@ export function BudgetBuilderTab({ onProjectSaved }: BudgetBuilderTabProps) {
 
           {lineItems.length > 0 && (
             <>
-              <BudgetSummaryChart lineItems={lineItems} />
+              <div data-tutorial="budget-summary">
+                <BudgetSummaryChart lineItems={lineItems} />
+              </div>
 
               <Alert>
                 <AlertCircle className="size-4" />
