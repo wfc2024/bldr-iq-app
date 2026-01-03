@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -29,9 +29,10 @@ import {
 
 interface BudgetBuilderTabProps {
   onProjectSaved: () => void;
+  resetForTutorial?: boolean;
 }
 
-export function BudgetBuilderTab({ onProjectSaved }: BudgetBuilderTabProps) {
+export function BudgetBuilderTab({ onProjectSaved, resetForTutorial }: BudgetBuilderTabProps) {
   const { user } = useAuth();
   const [showTemplateSelector, setShowTemplateSelector] = useState(true);
   const [projectName, setProjectName] = useState("");
@@ -356,6 +357,21 @@ export function BudgetBuilderTab({ onProjectSaved }: BudgetBuilderTabProps) {
     category,
     scopes: scopeOfWorkData.filter(scope => scope.group === category),
   }));
+
+  useEffect(() => {
+    if (resetForTutorial) {
+      setShowTemplateSelector(true);
+      setProjectName("");
+      setAddress("");
+      setGcMarkup("");
+      setGeneralConditions("");
+      setStatus("Draft");
+      setProjectNotes("");
+      setLineItems([]);
+      setTotalSqft("");
+      setShowNotIncluded(false);
+    }
+  }, [resetForTutorial]);
 
   return (
     <div className="space-y-4 md:space-y-6 max-w-6xl mx-auto p-4 md:p-6">
