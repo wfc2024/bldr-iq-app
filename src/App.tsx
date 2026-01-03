@@ -18,6 +18,7 @@ export default function App() {
   const [showTestingModal, setShowTestingModal] = useState(true);
   const [showGettingStarted, setShowGettingStarted] = useState(false);
   const [runTutorial, setRunTutorial] = useState(false);
+  const [resetBudgetBuilder, setResetBudgetBuilder] = useState(false);
 
   // Check if user has seen the getting started modal
   useEffect(() => {
@@ -47,7 +48,11 @@ export default function App() {
     setShowGettingStarted(false);
     localStorage.setItem("hasSeenWelcome", "true");
     setActiveTab("budget-builder");
-    setTimeout(() => setRunTutorial(true), 300);
+    setResetBudgetBuilder(true);
+    setTimeout(() => {
+      setResetBudgetBuilder(false);
+      setRunTutorial(true);
+    }, 300);
   };
 
   const handleSkipGettingStarted = () => {
@@ -74,11 +79,17 @@ export default function App() {
       target: '[data-tutorial="templates"]',
       content: "Start by choosing a pre-built template for common project types, or click 'Start From Scratch' to build your own custom budget.",
       disableBeacon: true,
+      spotlightClicks: true,
     },
     {
-      target: "body",
-      content: "Once you select a template or start from scratch, you'll be able to add project details, line items, and see your budget calculations automatically.",
-      placement: "center",
+      target: '[data-tutorial="project-details"]',
+      content: "After selecting a template or starting from scratch, fill in your project details like name, address, and general conditions percentage.",
+      disableBeacon: true,
+    },
+    {
+      target: '[data-tutorial="add-line-item"]',
+      content: "Add budget line items by clicking here. Each line item represents a scope of work with quantities and costs.",
+      disableBeacon: true,
     },
     {
       target: "body",
@@ -214,7 +225,7 @@ export default function App() {
         </TabsContent>
 
         <TabsContent value="budget-builder" className="mt-0">
-          <BudgetBuilderTab onProjectSaved={handleProjectSaved} />
+          <BudgetBuilderTab onProjectSaved={handleProjectSaved} resetForTutorial={resetBudgetBuilder} />
         </TabsContent>
 
         <TabsContent value="help" className="mt-0">
