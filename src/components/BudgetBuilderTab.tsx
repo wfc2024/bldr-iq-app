@@ -45,6 +45,22 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial }: BudgetBui
   const [totalSqft, setTotalSqft] = useState("");
   const [showNotIncluded, setShowNotIncluded] = useState(false);
 
+  // Reset for tutorial
+  useEffect(() => {
+    if (resetForTutorial) {
+      setShowTemplateSelector(true);
+      setProjectName("");
+      setAddress("");
+      setGcMarkup("");
+      setGeneralConditions("");
+      setStatus("Draft");
+      setProjectNotes("");
+      setLineItems([]);
+      setTotalSqft("");
+      setShowNotIncluded(false);
+    }
+  }, [resetForTutorial]);
+
   const handleSelectTemplate = (template: ProjectTemplate) => {
     setProjectName(template.name);
     setGcMarkup(template.defaultGCMarkup.toString());
@@ -357,21 +373,6 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial }: BudgetBui
     category,
     scopes: scopeOfWorkData.filter(scope => scope.group === category),
   }));
-
-  useEffect(() => {
-    if (resetForTutorial) {
-      setShowTemplateSelector(true);
-      setProjectName("");
-      setAddress("");
-      setGcMarkup("");
-      setGeneralConditions("");
-      setStatus("Draft");
-      setProjectNotes("");
-      setLineItems([]);
-      setTotalSqft("");
-      setShowNotIncluded(false);
-    }
-  }, [resetForTutorial]);
 
   return (
     <div className="space-y-4 md:space-y-6 max-w-6xl mx-auto p-4 md:p-6">
