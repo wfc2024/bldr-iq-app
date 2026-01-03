@@ -120,7 +120,7 @@ export default function App() {
           onClick={() => setShowTestingModal(false)}
         >
           <div 
-            className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-y-auto"
+            className="bg-white rounded-lg shadow-xl w-[420px] overflow-y-auto"
             style={{ maxHeight: '90vh' }}
             onClick={(e) => e.stopPropagation()}
           >
