@@ -19,7 +19,7 @@ export default function App() {
   const [showGettingStarted, setShowGettingStarted] = useState(false);
   const [runTutorial, setRunTutorial] = useState(false);
   const [resetBudgetBuilder, setResetBudgetBuilder] = useState(false);
-  const [tutorialStep, setTutorialStep] = useState(0);
+  const [stepIndex, setStepIndex] = useState(0);
   const [autoStartFromScratch, setAutoStartFromScratch] = useState(false);
 
   // Check if user has seen the getting started modal
@@ -69,22 +69,33 @@ export default function App() {
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status, index, action, type } = data;
     
-    // When moving to step 2 (template selector shown), automatically click "Start From Scratch" after user clicks Next
+    // When moving from step 2 (template selector) to step 3
     if (type === 'step:after' && index === 1 && action === 'next') {
       // Trigger "Start From Scratch" automatically
+      setAutoStartFromScratch(true);
+      // Wait for the elements to render before allowing next step
       setTimeout(() => {
-        setAutoStartFromScratch(true);
-      }, 500);
+        setStepIndex(2);
+      }, 600);
+      return;
+    }
+    
+    // Update step index for normal navigation
+    if (type === 'step:after' && action === 'next') {
+      setStepIndex(index + 1);
+    } else if (type === 'step:after' && action === 'prev') {
+      setStepIndex(index - 1);
     }
     
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
       setRunTutorial(false);
+      setStepIndex(0);
       setAutoStartFromScratch(false);
       localStorage.setItem("hasCompletedTutorial", "true");
     }
   };
 
-  // Tutorial steps
+  // Tutorial steps - Only include steps where targets exist at tutorial start
   const tutorialSteps: Step[] = [
     {
       target: "body",
@@ -93,22 +104,17 @@ export default function App() {
     },
     {
       target: '[data-tutorial="templates"]',
-      content: "Start by choosing a pre-built template for common project types, or click 'Start From Scratch' to build your own custom budget. Let's start from scratch for this tutorial!",
-      disableBeacon: true,
-    },
-    {
-      target: '[data-tutorial="project-details"]',
-      content: "Fill in your project details here - name, address, general conditions percentage, and GC markup. These help calculate your final budget totals.",
-      disableBeacon: true,
-    },
-    {
-      target: '[data-tutorial="add-line-item"]',
-      content: "Add budget line items by clicking here. Each line item represents a scope of work (like flooring or plumbing) with quantities and costs.",
+      content: "Start by choosing a pre-built template for common project types, or click 'Start From Scratch' to build your own custom budget.",
       disableBeacon: true,
     },
     {
       target: "body",
-      content: "💡 Pro Tips: Hover over (?) icons for helpful explanations, use the Help tab for detailed guides, and save your projects to come back later. Happy budgeting!",
+      content: "After selecting a template or starting from scratch, you'll fill in project details like name and address, add line items for different scopes of work, and see your budget summary with helpful charts and breakdowns.",
+      placement: "center",
+    },
+    {
+      target: "body",
+      content: "💡 Pro Tips: Hover over (?) icons for helpful explanations throughout the app, use the Help tab for detailed guides and construction terms, and save your projects to come back later. Happy budgeting!",
       placement: "center",
     },
   ];
