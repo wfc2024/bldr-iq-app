@@ -19,6 +19,7 @@ export default function App() {
   const [showGettingStarted, setShowGettingStarted] = useState(false);
   const [runTutorial, setRunTutorial] = useState(false);
   const [resetBudgetBuilder, setResetBudgetBuilder] = useState(false);
+  const [tutorialStep, setTutorialStep] = useState(0);
   const [autoStartFromScratch, setAutoStartFromScratch] = useState(false);
 
   // Check if user has seen the getting started modal
@@ -66,9 +67,19 @@ export default function App() {
   };
 
   const handleJoyrideCallback = (data: CallBackProps) => {
-    const { status } = data;
+    const { status, index, action, type } = data;
+    
+    // When moving to step 2 (template selector shown), automatically click "Start From Scratch" after user clicks Next
+    if (type === 'step:after' && index === 1 && action === 'next') {
+      // Trigger "Start From Scratch" automatically
+      setTimeout(() => {
+        setAutoStartFromScratch(true);
+      }, 500);
+    }
+    
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
       setRunTutorial(false);
+      setAutoStartFromScratch(false);
       localStorage.setItem("hasCompletedTutorial", "true");
     }
   };
@@ -82,12 +93,22 @@ export default function App() {
     },
     {
       target: '[data-tutorial="templates"]',
-      content: "Start by choosing a pre-built template for common project types, or click 'Start From Scratch' to build your own custom budget. After that, you'll fill in project details, add line items, and review your budget summary!",
+      content: "Start by choosing a pre-built template for common project types, or click 'Start From Scratch' to build your own custom budget. Let's start from scratch for this tutorial!",
+      disableBeacon: true,
+    },
+    {
+      target: '[data-tutorial="project-details"]',
+      content: "Fill in your project details here - name, address, general conditions percentage, and GC markup. These help calculate your final budget totals.",
+      disableBeacon: true,
+    },
+    {
+      target: '[data-tutorial="add-line-item"]',
+      content: "Add budget line items by clicking here. Each line item represents a scope of work (like flooring or plumbing) with quantities and costs.",
       disableBeacon: true,
     },
     {
       target: "body",
-      content: "💡 Pro Tips: Hover over (?) icons for helpful explanations, and visit the Help tab anytime for detailed guidance. Happy budgeting!",
+      content: "💡 Pro Tips: Hover over (?) icons for helpful explanations, use the Help tab for detailed guides, and save your projects to come back later. Happy budgeting!",
       placement: "center",
     },
   ];
