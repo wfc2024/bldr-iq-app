@@ -67,25 +67,7 @@ export default function App() {
   };
 
   const handleJoyrideCallback = (data: CallBackProps) => {
-    const { status, index, action, type } = data;
-    
-    // When moving from step 2 (template selector) to step 3
-    if (type === 'step:after' && index === 1 && action === 'next') {
-      // Trigger "Start From Scratch" automatically
-      setAutoStartFromScratch(true);
-      // Wait for the elements to render before allowing next step
-      setTimeout(() => {
-        setStepIndex(2);
-      }, 600);
-      return;
-    }
-    
-    // Update step index for normal navigation
-    if (type === 'step:after' && action === 'next') {
-      setStepIndex(index + 1);
-    } else if (type === 'step:after' && action === 'prev') {
-      setStepIndex(index - 1);
-    }
+    const { status } = data;
     
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
       setRunTutorial(false);
@@ -109,33 +91,44 @@ export default function App() {
       disableBeacon: true,
     },
     {
-      target: '[data-tutorial="templates"]',
+      target: '[data-tutorial="template-intro"]',
       content: (
         <div>
           <h3 className="text-lg mb-2" style={{ fontWeight: 600 }}>Step 1: Choose Your Starting Point</h3>
-          <p>Start by choosing a pre-built template for common project types (Office, Retail, Restaurant), or click 'Start From Scratch' to build your own custom budget.</p>
+          <p>You can start with a pre-built template or begin from scratch. Templates give you common line items for different project types.</p>
         </div>
       ),
       placement: "bottom",
       disableBeacon: true,
     },
     {
-      target: '[data-tutorial="templates"]',
+      target: '[data-tutorial="template-cards"]',
       content: (
         <div>
-          <h3 className="text-lg mb-2" style={{ fontWeight: 600 }}>Step 2: Fill in Project Details</h3>
-          <p>After selecting a template or starting from scratch, you'll fill in project details like name, address, square footage, general conditions percentage, and GC markup.</p>
+          <h3 className="text-lg mb-2" style={{ fontWeight: 600 }}>Step 2: Pre-Built Templates</h3>
+          <p>Select from Office, Retail, or Restaurant templates. Each includes typical scopes of work for that project type with pre-filled quantities.</p>
         </div>
       ),
       placement: "bottom",
+      disableBeacon: true,
+    },
+    {
+      target: '[data-tutorial="start-from-scratch"]',
+      content: (
+        <div>
+          <h3 className="text-lg mb-2" style={{ fontWeight: 600 }}>Step 3: Custom Budgets</h3>
+          <p>Or click "Start From Scratch" to build a completely custom budget. You'll fill in project details and add only the line items you need.</p>
+        </div>
+      ),
+      placement: "top",
       disableBeacon: true,
     },
     {
       target: "body",
       content: (
         <div>
-          <h3 className="text-lg mb-2" style={{ fontWeight: 600 }}>Step 3: Add Budget Line Items</h3>
-          <p>Add line items for different scopes of work (flooring, plumbing, electrical, etc.) with quantities and costs. The app calculates totals automatically!</p>
+          <h3 className="text-lg mb-2" style={{ fontWeight: 600 }}>Step 4: What Comes Next</h3>
+          <p>After choosing a template or starting from scratch, you'll fill in project details (name, address, square footage), add line items with quantities, and see your budget totals with helpful charts.</p>
         </div>
       ),
       placement: "center",
