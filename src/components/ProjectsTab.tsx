@@ -418,10 +418,12 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                     <>
                       <div className="flex items-center gap-2 flex-wrap">
                         <CardTitle className="text-lg md:text-xl">{displayProject.projectName}</CardTitle>
-                        <Badge className={getStatusColor(displayProject.status)}>
-                          {displayProject.status}
-                        </Badge>
                       </div>
+                      {displayProject.gcCompanyName && (
+                        <p className="text-sm md:text-base" style={{ color: '#F7931E', fontWeight: 500 }}>
+                          {displayProject.gcCompanyName}
+                        </p>
+                      )}
                       <p className="text-muted-foreground text-sm md:text-base">{displayProject.address}</p>
                       <p className="text-xs md:text-sm text-muted-foreground">
                         Last updated: {formatDate(displayProject.updatedAt)}
