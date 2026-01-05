@@ -1,6 +1,249 @@
 import { Project } from '../types/project';
 import { formatCurrency } from './formatCurrency';
 import { scopeOfWorkData } from '../data/scopeOfWork';
+import { helpText } from '../data/helpText';
+
+// Map technical group names to friendly category names with conversational intros
+const categoryInfo: Record<string, { friendlyName: string; intro: string }> = {
+  'GCs': { 
+    friendlyName: 'Project Setup & Management', 
+    intro: 'We\'ve included the planning and administrative items needed to get your project off the ground:' 
+  },
+  'Demo': { 
+    friendlyName: 'Demolition & Site Preparation', 
+    intro: 'This covers removing existing elements and preparing the space for new construction:' 
+  },
+  'Structural': { 
+    friendlyName: 'Structural Work', 
+    intro: 'Structural elements and supports included in your project:' 
+  },
+  'Concrete': { 
+    friendlyName: 'Concrete Work', 
+    intro: 'Concrete work for your project includes:' 
+  },
+  'Wood / Carpentry': { 
+    friendlyName: 'Carpentry & Millwork', 
+    intro: 'Custom carpentry and finish work to complete your space:' 
+  },
+  'Thermal / Moisture': { 
+    friendlyName: 'Weatherproofing & Insulation', 
+    intro: 'Protecting your building from the elements:' 
+  },
+  'Doors and Windows': { 
+    friendlyName: 'Doors & Windows', 
+    intro: 'Entry points, interior doors, and glazing for your space:' 
+  },
+  'Finishes': { 
+    friendlyName: 'Interior Finishes', 
+    intro: 'The visible finishes that will define the look and feel of your space:' 
+  },
+  'Specialties': { 
+    friendlyName: 'Specialty Items', 
+    intro: 'Specialty fixtures and accessories included:' 
+  },
+  'Fire Sprinklers': { 
+    friendlyName: 'Fire Protection', 
+    intro: 'Fire safety systems for your project:' 
+  },
+  'Plumbing': { 
+    friendlyName: 'Plumbing', 
+    intro: 'Plumbing fixtures and rough-in work:' 
+  },
+  'Mechanical': { 
+    friendlyName: 'HVAC & Mechanical', 
+    intro: 'Heating, cooling, and ventilation systems:' 
+  },
+  'Electrical': { 
+    friendlyName: 'Electrical & Lighting', 
+    intro: 'Power distribution and lighting for your space:' 
+  },
+};
+
+// Generate the Budget Summary section
+const generateBudgetSummary = (project: Project): string => {
+  // Group line items by category
+  const itemsByCategory: Record<string, typeof project.lineItems> = {};
+  
+  project.lineItems.forEach(item => {
+    // Find the group for this scope item
+    const scopeData = scopeOfWorkData.find(s => s.name === item.scopeName);
+    const group = scopeData?.group || 'Other';
+    
+    // Only include items with quantity > 0 OR custom items (even with qty 0)
+    if (item.quantity > 0 || item.isCustom) {
+      if (!itemsByCategory[group]) {
+        itemsByCategory[group] = [];
+      }
+      itemsByCategory[group].push(item);
+    }
+  });
+
+  let summaryHtml = `
+  <div style="margin-bottom: 30px; margin-top: 30px;">
+    <h2 style="color: #1B2D4F; margin-bottom: 20px;">${project.projectName} Budget Summary</h2>
+    
+    <div style="margin-bottom: 25px; padding: 15px; background-color: #f5f5f5; border-left: 4px solid #1B2D4F;">
+      <h3 style="margin-top: 0; color: #1B2D4F; font-size: 12pt;">Project Overview</h3>
+      <p style="margin: 8px 0;"><strong>Project:</strong> ${project.projectName}</p>
+      <p style="margin: 8px 0;"><strong>Location:</strong> ${project.address}</p>
+      <p style="margin: 8px 0;"><strong>Budget Date:</strong> ${new Date().toLocaleDateString()}</p>
+      <p style="margin: 12px 0 0 0; font-size: 10pt; line-height: 1.5;">
+        This preliminary budget is based on typical unit costs for commercial construction, 
+        user-provided quantities and selections, and industry-standard assumptions. 
+        No architectural drawings or engineering have been completed at this stage.
+      </p>
+    </div>
+
+    <h3 style="color: #1B2D4F; margin-top: 25px; margin-bottom: 15px;">Scope Included in This Budget</h3>
+  `;
+
+  // Generate category sections in the order they appear in scopeOfWorkData
+  const orderedCategories: string[] = [];
+  scopeOfWorkData.forEach(item => {
+    if (!orderedCategories.includes(item.group)) {
+      orderedCategories.push(item.group);
+    }
+  });
+
+  orderedCategories.forEach(group => {
+    if (!itemsByCategory[group]) return;
+
+    const categoryData = categoryInfo[group] || { 
+      friendlyName: group, 
+      intro: `${group} work included in your project:` 
+    };
+
+    summaryHtml += `
+    <div style="margin-bottom: 20px;">
+      <h4 style="color: #F7931E; margin-bottom: 8px; font-size: 11pt; text-transform: uppercase;">${categoryData.friendlyName}</h4>
+      <p style="margin: 6px 0 10px 0; font-size: 10pt; color: #555;">${categoryData.intro}</p>
+      <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
+    `;
+
+    itemsByCategory[group].forEach(item => {
+      const displayName = item.isCustom && item.customScopeName 
+        ? item.customScopeName 
+        : item.scopeName;
+
+      summaryHtml += `
+        <li style="margin-bottom: 6px; font-size: 10pt;">
+          ${displayName}
+          ${item.notes ? `<div style="margin-left: 0; margin-top: 3px; font-style: italic; color: #666; font-size: 9pt;">Note: ${item.notes}</div>` : ''}
+        </li>
+      `;
+    });
+
+    summaryHtml += `
+      </ul>
+    </div>
+    `;
+  });
+
+  // Add General Conditions & Markup section
+  summaryHtml += `
+    <h3 style="color: #1B2D4F; margin-top: 30px; margin-bottom: 15px;">General Conditions & Markup</h3>
+    <div style="padding: 15px; background-color: #f9f9f9; border: 1px solid #ddd;">
+      <p style="margin: 8px 0; font-size: 10pt;">
+        <strong>General Conditions (${project.generalConditionsPercentage}%):</strong> 
+        Covers supervision, project management, temporary facilities, safety equipment, and job site overhead.
+      </p>
+  `;
+
+  if ((project.overheadPercentage || 0) > 0 && (project.profitPercentage || 0) > 0) {
+    summaryHtml += `
+      <p style="margin: 8px 0; font-size: 10pt;">
+        <strong>Overhead (${project.overheadPercentage}%):</strong> Company operational costs and indirect expenses.
+      </p>
+      <p style="margin: 8px 0; font-size: 10pt;">
+        <strong>Profit (${project.profitPercentage}%):</strong> Contractor profit margin.
+      </p>
+    `;
+  } else {
+    summaryHtml += `
+      <p style="margin: 8px 0; font-size: 10pt;">
+        <strong>GC Markup (${project.gcMarkupPercentage}%):</strong> 
+        Covers insurance, bonding capacity, profit, and business risk.
+      </p>
+    `;
+  }
+
+  if ((project.bondInsurancePercentage || 0) > 0) {
+    summaryHtml += `
+      <p style="margin: 8px 0; font-size: 10pt;">
+        <strong>Bond & Insurance (${project.bondInsurancePercentage}%):</strong> 
+        Performance bonds and additional insurance requirements.
+      </p>
+    `;
+  }
+
+  if ((project.contingencyPercentage || 0) > 0) {
+    summaryHtml += `
+      <p style="margin: 8px 0; font-size: 10pt;">
+        <strong>Contingency (${project.contingencyPercentage}%):</strong> 
+        Reserve for unforeseen conditions or minor changes.
+      </p>
+    `;
+  }
+
+  if ((project.salesTaxPercentage || 0) > 0) {
+    summaryHtml += `
+      <p style="margin: 8px 0; font-size: 10pt;">
+        <strong>Sales Tax (${project.salesTaxPercentage}%):</strong> 
+        Applied to taxable materials and equipment.
+      </p>
+    `;
+  }
+
+  summaryHtml += `
+    </div>
+  `;
+
+  // Add What's Not Included section
+  summaryHtml += `
+    <h3 style="color: #1B2D4F; margin-top: 30px; margin-bottom: 15px;">What's Not Included in This Budget</h3>
+    <div style="padding: 15px; background-color: #fff3cd; border-left: 4px solid #F7931E;">
+      <p style="margin: 0 0 10px 0; font-size: 10pt; line-height: 1.6;">
+        Unless specifically listed above, this preliminary budget does not include the following items. 
+        Please discuss any of these needs with your contractor during the planning phase:
+      </p>
+      <ul style="margin: 10px 0; padding-left: 20px; list-style-type: disc; column-count: 2; column-gap: 20px;">
+  `;
+
+  helpText.notIncluded.forEach(exclusion => {
+    summaryHtml += `
+        <li style="margin-bottom: 6px; font-size: 9pt; break-inside: avoid;">${exclusion}</li>
+    `;
+  });
+
+  summaryHtml += `
+      </ul>
+    </div>
+  `;
+
+  // Add Important Notes section
+  summaryHtml += `
+    <h3 style="color: #1B2D4F; margin-top: 30px; margin-bottom: 15px;">Important Notes</h3>
+    <div style="padding: 15px; background-color: #f5f5f5; border: 1px solid #ddd;">
+      <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
+        <li style="margin-bottom: 8px; font-size: 10pt;">
+          This is a preliminary planning budget, not a construction proposal or binding quote.
+        </li>
+        <li style="margin-bottom: 8px; font-size: 10pt;">
+          ${helpText.budgetDisclaimer}
+        </li>
+        <li style="margin-bottom: 8px; font-size: 10pt;">
+          All work assumes compliance with local building codes and standard industry practices.
+        </li>
+        <li style="margin-bottom: 0; font-size: 10pt;">
+          For accurate pricing, always obtain detailed proposals from licensed contractors after your design is complete.
+        </li>
+      </ul>
+    </div>
+  </div>
+  `;
+
+  return summaryHtml;
+};
 
 export const generatePDFContent = (project: Project, showCostBreakdown: boolean = true): string => {
   const currentDate = new Date().toLocaleDateString();
@@ -44,6 +287,13 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
       padding: 20px;
       font-size: 11pt;
     }
+    
+    /* Page break controls for PDF generation */
+    p, li, div, h3, .summary-section, .category-section {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    
     .header {
       display: flex;
       justify-content: space-between;
@@ -51,6 +301,8 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
       border-bottom: 3px solid #1B2D4F;
       padding-bottom: 15px;
       margin-bottom: 25px;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .logo {
       font-size: 24pt;
@@ -62,6 +314,8 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
     }
     .project-info {
       margin-bottom: 25px;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .project-info table {
       width: 100%;
@@ -95,6 +349,10 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
       padding: 8px 10px;
       border-bottom: 1px solid #ddd;
     }
+    .line-items tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
     .line-items tr:nth-child(even) {
       background-color: #f9f9f9;
     }
@@ -105,6 +363,8 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
       margin-top: 30px;
       float: right;
       width: 400px;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .totals table {
       width: 100%;
@@ -197,8 +457,10 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
   </div>
   ` : ''}
 
-  <div class="line-items">
-    <h2 style="color: #1B2D4F; margin-bottom: 10px;">Line Items</h2>
+  ${generateBudgetSummary(project)}
+
+  <div class="line-items page-break">
+    <h2 style="color: #1B2D4F; margin-bottom: 10px;">Detailed Line Item Breakdown</h2>
     <table>
       <thead>
         <tr>
@@ -340,22 +602,14 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
 export const downloadPDF = (project: Project, showCostBreakdown: boolean = true) => {
   const htmlContent = generatePDFContent(project, showCostBreakdown);
   
-  // Create a new window for printing
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) {
-    throw new Error('Please allow pop-ups to download PDF');
+  // Open preview window
+  const pdfWindow = window.open('', '_blank');
+  if (!pdfWindow) {
+    throw new Error('Please allow pop-ups to view PDF');
   }
   
-  printWindow.document.write(htmlContent);
-  printWindow.document.close();
-  
-  // Wait for content to load then trigger print dialog
-  printWindow.onload = () => {
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-    }, 250);
-  };
+  pdfWindow.document.write(htmlContent);
+  pdfWindow.document.close();
 };
 
 export const copyToClipboard = (project: Project) => {
