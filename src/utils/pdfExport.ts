@@ -57,6 +57,10 @@ const categoryInfo: Record<string, { friendlyName: string; intro: string }> = {
     friendlyName: 'Electrical & Lighting', 
     intro: 'Power distribution and lighting for your space:' 
   },
+  'Custom Items': { 
+    friendlyName: 'Custom Scope Items', 
+    intro: 'Additional custom work items included in your project:' 
+  },
 };
 
 // Generate the Budget Summary section
@@ -65,9 +69,18 @@ const generateBudgetSummary = (project: Project): string => {
   const itemsByCategory: Record<string, typeof project.lineItems> = {};
   
   project.lineItems.forEach(item => {
-    // Find the group for this scope item
-    const scopeData = scopeOfWorkData.find(s => s.name === item.scopeName);
-    const group = scopeData?.group || 'Other';
+    let group = 'Other';
+    
+    // For custom items, try to find the base scope's group if available
+    // Otherwise, put them in a "Custom Items" category
+    if (item.isCustom) {
+      const scopeData = scopeOfWorkData.find(s => s.name === item.scopeName);
+      group = scopeData?.group || 'Custom Items';
+    } else {
+      // Find the group for standard scope items
+      const scopeData = scopeOfWorkData.find(s => s.name === item.scopeName);
+      group = scopeData?.group || 'Other';
+    }
     
     // Only include items with quantity > 0 OR custom items (even with qty 0)
     if (item.quantity > 0 || item.isCustom) {
@@ -79,22 +92,22 @@ const generateBudgetSummary = (project: Project): string => {
   });
 
   let summaryHtml = `
-  <div style="margin-bottom: 30px; margin-top: 30px;">
-    <h2 style="color: #1B2D4F; margin-bottom: 20px;">${project.projectName} Budget Summary</h2>
+  <div style="margin-bottom: 20px; margin-top: 15px;">
+    <h2>${project.projectName} Budget Summary</h2>
     
-    <div style="margin-bottom: 25px; padding: 15px; background-color: #f5f5f5; border-left: 4px solid #1B2D4F;">
-      <h3 style="margin-top: 0; color: #1B2D4F; font-size: 12pt;">Project Overview</h3>
-      <p style="margin: 8px 0;"><strong>Project:</strong> ${project.projectName}</p>
-      <p style="margin: 8px 0;"><strong>Location:</strong> ${project.address}</p>
-      <p style="margin: 8px 0;"><strong>Budget Date:</strong> ${new Date().toLocaleDateString()}</p>
-      <p style="margin: 12px 0 0 0; font-size: 10pt; line-height: 1.5;">
+    <div style="margin-bottom: 15px; padding: 10px; background-color: #f5f5f5; border-left: 4px solid #1B2D4F;">
+      <h3 style="margin-top: 0; margin-bottom: 6px; font-size: 11pt;">Project Overview</h3>
+      <p style="font-size: 9pt;"><strong>Project:</strong> ${project.projectName}</p>
+      <p style="font-size: 9pt;"><strong>Location:</strong> ${project.address}</p>
+      <p style="font-size: 9pt;"><strong>Budget Date:</strong> ${new Date().toLocaleDateString()}</p>
+      <p style="margin: 6px 0 0 0; font-size: 9pt; line-height: 1.4;">
         This preliminary budget is based on typical unit costs for commercial construction, 
         user-provided quantities and selections, and industry-standard assumptions. 
         No architectural drawings or engineering have been completed at this stage.
       </p>
     </div>
 
-    <h3 style="color: #1B2D4F; margin-top: 25px; margin-bottom: 15px;">Scope Included in This Budget</h3>
+    <h3 style="margin-bottom: 10px;">Scope Included in This Budget</h3>
   `;
 
   // Generate category sections in the order they appear in scopeOfWorkData
@@ -102,6 +115,13 @@ const generateBudgetSummary = (project: Project): string => {
   scopeOfWorkData.forEach(item => {
     if (!orderedCategories.includes(item.group)) {
       orderedCategories.push(item.group);
+    }
+  });
+  
+  // Add any additional categories from itemsByCategory (like "Custom Items")
+  Object.keys(itemsByCategory).forEach(group => {
+    if (!orderedCategories.includes(group)) {
+      orderedCategories.push(group);
     }
   });
 
@@ -284,8 +304,9 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px;
-      font-size: 11pt;
+      padding: 15px;
+      font-size: 10pt;
+      line-height: 1.4;
     }
     
     /* Page break controls for PDF generation */
@@ -299,13 +320,13 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
       justify-content: space-between;
       align-items: center;
       border-bottom: 3px solid #1B2D4F;
-      padding-bottom: 15px;
-      margin-bottom: 25px;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
       page-break-inside: avoid;
       break-inside: avoid;
     }
     .logo {
-      font-size: 24pt;
+      font-size: 20pt;
       font-weight: bold;
       color: #1B2D4F;
     }
@@ -313,7 +334,7 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
       color: #F7931E;
     }
     .project-info {
-      margin-bottom: 25px;
+      margin-bottom: 15px;
       page-break-inside: avoid;
       break-inside: avoid;
     }
@@ -322,8 +343,9 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
       border-collapse: collapse;
     }
     .project-info td {
-      padding: 6px 10px;
+      padding: 4px 8px;
       border: 1px solid #ddd;
+      font-size: 9pt;
     }
     .project-info td:first-child {
       font-weight: bold;
@@ -331,23 +353,25 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
       background-color: #f5f5f5;
     }
     .line-items {
-      margin-top: 20px;
+      margin-top: 15px;
     }
     .line-items table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
     .line-items th {
       background-color: #1B2D4F;
       color: white;
-      padding: 10px;
+      padding: 6px 8px;
       text-align: left;
       font-weight: bold;
+      font-size: 9pt;
     }
     .line-items td {
-      padding: 8px 10px;
+      padding: 5px 8px;
       border-bottom: 1px solid #ddd;
+      font-size: 9pt;
     }
     .line-items tr {
       page-break-inside: avoid;
@@ -360,9 +384,9 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
       text-align: right;
     }
     .totals {
-      margin-top: 30px;
+      margin-top: 20px;
       float: right;
-      width: 400px;
+      width: 350px;
       page-break-inside: avoid;
       break-inside: avoid;
     }
@@ -371,8 +395,9 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
       border-collapse: collapse;
     }
     .totals td {
-      padding: 8px 10px;
+      padding: 5px 8px;
       border-bottom: 1px solid #ddd;
+      font-size: 9pt;
     }
     .totals td:first-child {
       font-weight: bold;
@@ -384,34 +409,61 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
       background-color: #1B2D4F;
       color: white;
       font-weight: bold;
-      font-size: 13pt;
+      font-size: 11pt;
     }
     .footer {
       clear: both;
-      margin-top: 50px;
-      padding-top: 15px;
+      margin-top: 30px;
+      padding-top: 10px;
       border-top: 2px solid #ddd;
-      font-size: 9pt;
+      font-size: 8pt;
       color: #666;
       text-align: center;
+      line-height: 1.3;
     }
     .notes {
-      margin-top: 30px;
-      padding: 15px;
+      margin-top: 15px;
+      padding: 10px;
       background-color: #fff3cd;
       border-left: 4px solid #F7931E;
     }
     .notes-title {
       font-weight: bold;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       color: #1B2D4F;
+      font-size: 10pt;
     }
     .cost-breakdown {
-      font-size: 9pt;
+      font-size: 8pt;
       color: #666;
+      margin-top: 2px;
+    }
+    h2 {
+      font-size: 14pt;
+      margin: 15px 0 10px 0;
+      color: #1B2D4F;
+    }
+    h3 {
+      font-size: 11pt;
+      margin: 15px 0 8px 0;
+      color: #1B2D4F;
+    }
+    h4 {
+      font-size: 10pt;
+      margin: 8px 0 4px 0;
+    }
+    p {
+      margin: 4px 0;
+    }
+    ul {
+      margin: 6px 0;
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 3px;
     }
     @media print {
-      body { margin: 0; padding: 15px; }
+      body { margin: 0; padding: 10px; }
       .page-break { page-break-before: always; }
     }
   </style>
@@ -420,8 +472,8 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
   <div class="header">
     <div class="logo">BLDR <span class="logo-accent">IQ</span></div>
     <div style="text-align: right;">
-      <div style="font-size: 18pt; font-weight: bold; color: #1B2D4F;">BUDGET ESTIMATE</div>
-      <div style="margin-top: 5px;">Date: ${currentDate}</div>
+      <div style="font-size: 16pt; font-weight: bold; color: #1B2D4F;">BUDGET ESTIMATE</div>
+      <div style="margin-top: 3px; font-size: 9pt;">Date: ${currentDate}</div>
     </div>
   </div>
 
