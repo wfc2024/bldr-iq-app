@@ -488,17 +488,15 @@ export const generatePDFContent = (project: Project, showCostBreakdown: boolean 
         <td>Address</td>
         <td>${project.address}</td>
       </tr>
+      ${project.gcCompanyName ? `
       <tr>
-        <td>Status</td>
-        <td>${project.status}</td>
+        <td>GC Company Name</td>
+        <td>${project.gcCompanyName}</td>
       </tr>
+      ` : ''}
       <tr>
         <td>Created</td>
         <td>${new Date(project.createdAt).toLocaleDateString()}</td>
-      </tr>
-      <tr>
-        <td>Last Updated</td>
-        <td>${new Date(project.updatedAt).toLocaleDateString()}</td>
       </tr>
     </table>
   </div>
