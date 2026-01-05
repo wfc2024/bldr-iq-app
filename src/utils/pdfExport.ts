@@ -99,6 +99,7 @@ const generateBudgetSummary = (project: Project): string => {
       <h3 style="margin-top: 0; margin-bottom: 6px; font-size: 11pt;">Project Overview</h3>
       <p style="font-size: 9pt;"><strong>Project:</strong> ${project.projectName}</p>
       <p style="font-size: 9pt;"><strong>Location:</strong> ${project.address}</p>
+      ${project.gcCompanyName ? `<p style="font-size: 9pt;"><strong>Budget Prepared By:</strong> ${project.gcCompanyName}</p>` : ''}
       <p style="font-size: 9pt;"><strong>Budget Date:</strong> ${new Date().toLocaleDateString()}</p>
       <p style="margin: 6px 0 0 0; font-size: 9pt; line-height: 1.4;">
         This preliminary budget is based on typical unit costs for commercial construction, 
