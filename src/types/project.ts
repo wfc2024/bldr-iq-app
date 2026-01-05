@@ -30,6 +30,7 @@ export interface Project {
   userId?: string; // Optional for now, will be required when auth is integrated
   projectName: string;
   address: string;
+  gcCompanyName?: string; // GC company name providing the budget
   gcMarkupPercentage: number;
   generalConditionsPercentage: number;
   lineItems: LineItem[];
