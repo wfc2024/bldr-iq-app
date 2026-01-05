@@ -38,6 +38,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
   const [showTemplateSelector, setShowTemplateSelector] = useState(true);
   const [projectName, setProjectName] = useState("");
   const [address, setAddress] = useState("");
+  const [gcCompanyName, setGcCompanyName] = useState("");
   const [gcMarkup, setGcMarkup] = useState("");
   const [generalConditions, setGeneralConditions] = useState("");
   const [status, setStatus] = useState<"Draft" | "Active" | "Completed" | "Archived">("Draft");
@@ -52,6 +53,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
       setShowTemplateSelector(true);
       setProjectName("");
       setAddress("");
+      setGcCompanyName("");
       setGcMarkup("");
       setGeneralConditions("");
       setStatus("Draft");
@@ -142,6 +144,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
       id: crypto.randomUUID(),
       projectName,
       address,
+      gcCompanyName: gcCompanyName || undefined,
       gcMarkupPercentage: parseFloat(gcMarkup) || 0,
       generalConditionsPercentage: parseFloat(generalConditions) || 0,
       lineItems,
@@ -340,6 +343,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
       userId: user?.id,
       projectName,
       address,
+      gcCompanyName: gcCompanyName || undefined,
       gcMarkupPercentage: parseFloat(gcMarkup),
       generalConditionsPercentage: parseFloat(generalConditions),
       lineItems,
@@ -358,6 +362,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
       // Clear form
       setProjectName("");
       setAddress("");
+      setGcCompanyName("");
       setGcMarkup("");
       setGeneralConditions("");
       setStatus("Draft");
@@ -465,6 +470,17 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="gcCompanyName">GC Company Name (Optional)</Label>
+                  <Input
+                    id="gcCompanyName"
+                    value={gcCompanyName}
+                    onChange={(e) => setGcCompanyName(e.target.value)}
+                    placeholder="Enter company providing this budget"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <div className="flex items-center">
                     <Label htmlFor="status">Status</Label>
                     <HelpTooltip content={`${helpText.projectStatus.Draft} | ${helpText.projectStatus.Active} | ${helpText.projectStatus.Completed} | ${helpText.projectStatus.Archived}`} />
@@ -481,8 +497,6 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="totalSqft">Total Square Footage (Optional)</Label>
                   <Input
@@ -494,7 +508,6 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                     placeholder="Enter total sqft for benchmark comparison"
                   />
                 </div>
-                <div></div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="projectNotes">Project Notes</Label>
