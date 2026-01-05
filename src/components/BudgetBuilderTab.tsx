@@ -155,10 +155,10 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
 
     try {
       downloadPDF(project, true);
-      toast.success('PDF export initiated - check your browser for print dialog');
+      toast.success('PDF preview opened in new window');
     } catch (error) {
       console.error('Error exporting PDF:', error);
-      toast.error('Failed to export PDF');
+      toast.error('Failed to export PDF. Please allow pop-ups for this site.');
     }
   };
 
