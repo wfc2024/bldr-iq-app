@@ -387,12 +387,22 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                           </Select>
                         </div>
                       </div>
-                      <div className="space-y-2">
-                        <Label>Address</Label>
-                        <Input
-                          value={displayProject.address}
-                          onChange={(e) => setEditedProject({ ...editedProject!, address: e.target.value })}
-                        />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Address</Label>
+                          <Input
+                            value={displayProject.address}
+                            onChange={(e) => setEditedProject({ ...editedProject!, address: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>GC Company Name (Optional)</Label>
+                          <Input
+                            value={displayProject.gcCompanyName || ""}
+                            onChange={(e) => setEditedProject({ ...editedProject!, gcCompanyName: e.target.value })}
+                            placeholder="Enter company providing this budget"
+                          />
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <Label>Project Notes</Label>
