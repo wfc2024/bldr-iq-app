@@ -1,9 +1,9 @@
 // Help text and tooltips for non-construction professionals
 
 export const helpText = {
-  gcMarkup: "General Contractor markup covers project management, insurance, overhead, and profit. Typical range is 10-20%.",
+  gcMarkup: "General Contractor markup typically covers insurance, overhead, and profit. Typical range is 10-20%.",
   
-  generalConditions: "General Conditions cover project-specific costs like temporary facilities, job site supervision, safety equipment, project management, and temporary utilities. Typically 6-10% of subtotal.",
+  generalConditions: "General Conditions cover project-specific costs like project management, job site supervision, general labor, survey, deputy inspections, temporary facilities, dumpsters, safety equipment, and temporary utilities. Typically 6-10% of subtotal.",
   
   projectStatus: {
     Draft: "Initial planning stage - not yet started",
