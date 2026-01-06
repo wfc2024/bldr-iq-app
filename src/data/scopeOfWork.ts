@@ -84,7 +84,7 @@ export const scopeOfWorkData: ScopeOfWork[] = [
   { group: 'Mechanical', name: 'Relocated Grills / Registers / Diffusers (keep existing duct work)', unitType: 'each', defaultUnitCost: 250, unitReasoning: getUnitReasoning('each') },
   { group: 'Mechanical', name: 'New General Duct Work and Distribution', unitType: 'sqft', defaultUnitCost: 8, unitReasoning: getUnitReasoning('sqft') },
   { group: 'Mechanical', name: 'New RTU', unitType: 'each', defaultUnitCost: 10000, unitReasoning: getUnitReasoning('each') },
-  { group: 'Mechanical', name: 'New Type 1 Hood 10' or less', unitType: 'each', defaultUnitCost: 65000, unitReasoning: getUnitReasoning('each') },
+  { group: 'Mechanical', name: 'New Type 1 Hood 10 lf or less', unitType: 'each', defaultUnitCost: 65000, unitReasoning: getUnitReasoning('each') },
   { group: 'Electrical', name: 'General Electrical Distribution for Tenant Improvement', unitType: 'sqft', defaultUnitCost: 18, unitReasoning: getUnitReasoning('sqft') },
   { group: 'Electrical', name: 'Lighting Allowance for Tentant Improvement', unitType: 'sqft', defaultUnitCost: 3, unitReasoning: getUnitReasoning('sqft') },
   { group: 'Electrical', name: 'Light Fixture Swap 1 for 1', unitType: 'each', defaultUnitCost: 300, unitReasoning: getUnitReasoning('each') },
