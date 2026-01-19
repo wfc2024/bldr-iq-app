@@ -660,7 +660,7 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                                 <Input
                                   type="number"
                                   min="0"
-                                  step="0.01"
+                                  step="1"
                                   value={item.quantity || ""}
                                   onChange={(e) => updateEditedLineItemQuantity(item.id, parseFloat(e.target.value) || 0)}
                                   className="text-sm"
