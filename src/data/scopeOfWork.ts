@@ -88,6 +88,7 @@ export const scopeOfWorkData: ScopeOfWork[] = [
   { group: 'Fire Sprinklers', name: 'Sprinkler Design and Permit (require if any heads to be relocated)', unitType: 'lump sum', defaultUnitCost: 1500, unitReasoning: getUnitReasoning('lump sum') },
   { group: 'Plumbing', name: 'New plumbing fixtures including necessary underground and overhead work', unitType: 'each', defaultUnitCost: 3500, unitReasoning: getUnitReasoning('each') },
   { group: 'Mechanical', name: 'Relocated Grills / Registers / Diffusers (keep existing duct work)', unitType: 'each', defaultUnitCost: 250, unitReasoning: getUnitReasoning('each') },
+  { group: 'Mechanical', name: 'New Exhaust Fan', unitType: 'each', defaultUnitCost: 1500, unitReasoning: getUnitReasoning('each') },
   { group: 'Mechanical', name: 'New General Duct Work and Distribution', unitType: 'sqft', defaultUnitCost: 8, unitReasoning: getUnitReasoning('sqft') },
   { group: 'Mechanical', name: 'New RTU', unitType: 'each', defaultUnitCost: 10000, unitReasoning: getUnitReasoning('each') },
   { group: 'Mechanical', name: 'New Type 1 Hood 10 lf or less', unitType: 'each', defaultUnitCost: 65000, unitReasoning: getUnitReasoning('each') },
