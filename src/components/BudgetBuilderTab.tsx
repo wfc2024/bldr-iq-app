@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Textarea } from "./ui/textarea";
 import { Alert, AlertDescription } from "./ui/alert";
-import { Trash2, Plus, AlertCircle, Copy, FileDown } from "lucide-react";
+import { Trash2, Plus, AlertCircle, Copy, FileDown, Package } from "lucide-react";
 import { scopeOfWorkData, categories } from "../data/scopeOfWork";
 import { LineItem, Project } from "../types/project";
 import { toast } from "sonner@2.0.3";
@@ -103,25 +103,52 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
     setShowTemplateSelector(false);
   };
 
-  const handleSelectAssembly = (assembly: Assembly) => {
-    const newItems: LineItem[] = assembly.items.map(assemblyItem => {
+  const handleSelectAssembly = (assembly: Assembly, quantity: number = 1) => {
+    // Calculate the total unit cost of the assembly by summing all components
+    let assemblyUnitCost = 0;
+    
+    assembly.items.forEach(assemblyItem => {
       const scope = scopeOfWorkData.find(s => s.name === assemblyItem.scopeName);
-      if (!scope) return null;
-      
-      const total = assemblyItem.quantity * scope.defaultUnitCost;
-      return {
-        id: crypto.randomUUID(),
-        scopeName: assemblyItem.scopeName,
-        unitType: scope.unitType,
-        quantity: assemblyItem.quantity,
-        unitCost: scope.defaultUnitCost,
-        total,
-        notes: assemblyItem.notes || '',
-      };
-    }).filter(Boolean) as LineItem[];
+      if (scope) {
+        assemblyUnitCost += assemblyItem.quantity * scope.defaultUnitCost;
+      }
+    });
 
-    setLineItems(prev => [...prev, ...newItems]);
-    toast.success(`Added ${assembly.name} (${newItems.length} items)`);
+    // Calculate discount if applicable
+    let discountPercent = 0;
+    if (assembly.scaleDiscounts && assembly.scaleDiscounts.length > 0) {
+      const tier = assembly.scaleDiscounts.find(
+        discount => quantity >= discount.minQty && quantity <= discount.maxQty
+      );
+      if (tier) {
+        discountPercent = tier.discountPercent;
+      }
+    }
+
+    // Apply discount to the total assembly unit cost
+    const discountMultiplier = 1 - (discountPercent / 100);
+    const finalUnitCost = assemblyUnitCost * discountMultiplier;
+    const total = quantity * finalUnitCost;
+
+    // Create a single line item for the assembly
+    const assemblyLineItem: LineItem = {
+      id: crypto.randomUUID(),
+      scopeName: assembly.name,
+      unitType: 'each',
+      quantity: quantity,
+      unitCost: finalUnitCost,
+      total: total,
+      notes: assembly.description,
+      isAssembly: true, // Flag to identify assembly line items
+    };
+
+    // Insert at the top of the line items list
+    setLineItems(prev => [assemblyLineItem, ...prev]);
+    
+    const discountMessage = discountPercent > 0 
+      ? ` with ${discountPercent}% volume discount` 
+      : '';
+    toast.success(`Added ${quantity}x ${assembly.name}${discountMessage}`);
   };
 
   const handleDuplicateLineItem = (item: LineItem) => {
@@ -560,7 +587,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
             <CardContent>
               {lineItems.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground text-sm">
-                  No line items yet. Click "Add Line Item" to get started.
+                  No line items yet. Click "Add Package" for pre-built bundles or "Add Line Item" to add individual items.
                 </div>
               ) : (
                 <div className="space-y-0" data-tutorial="line-items-table">
@@ -600,31 +627,56 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                               <HelpTooltip content={helpText.scopeDescriptions[item.scopeName as keyof typeof helpText.scopeDescriptions]} />
                             )}
                           </div>
-                          <Select
-                            value={item.scopeName}
-                            onValueChange={(value) => updateLineItemScope(item.id, value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select scope" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="CUSTOM_INPUT" className="font-medium text-[#F7931E]">
-                                ✏️ Custom Input
-                              </SelectItem>
-                              {scopesByCategory.map(({ category, scopes }) => (
-                                <div key={category}>
-                                  <div className="px-2 py-1.5 font-medium text-sm text-muted-foreground">
-                                    {category}
-                                  </div>
-                                  {scopes.map((scope) => (
-                                    <SelectItem key={scope.name} value={scope.name} className="pl-4">
-                                      {scope.name}
-                                    </SelectItem>
+                          
+                          {/* Show disabled input for assembly line items */}
+                          {item.isAssembly ? (
+                            <>
+                              <Input
+                                value={item.scopeName}
+                                disabled
+                                className="text-sm"
+                              />
+                              <p className="text-xs text-muted-foreground italic flex items-center gap-1">
+                                <Package className="size-3" />
+                                Assembly Package - {item.notes}
+                              </p>
+                            </>
+                          ) : (
+                            /* Regular Select dropdown for normal line items */
+                            <>
+                              <Select
+                                value={item.scopeName}
+                                onValueChange={(value) => updateLineItemScope(item.id, value)}
+                                disabled={item.unitType === 'each' && !scopeOfWorkData.find(s => s.name === item.scopeName)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select scope" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="CUSTOM_INPUT" className="font-medium text-[#F7931E]">
+                                    ✏️ Custom Input
+                                  </SelectItem>
+                                  {scopesByCategory.map(({ category, scopes }) => (
+                                    <div key={category}>
+                                      <div className="px-2 py-1.5 font-medium text-sm text-muted-foreground">
+                                        {category}
+                                      </div>
+                                      {scopes.map((scope) => (
+                                        <SelectItem key={scope.name} value={scope.name} className="pl-4">
+                                          {scope.name}
+                                        </SelectItem>
+                                      ))}
+                                    </div>
                                   ))}
-                                </div>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                                </SelectContent>
+                              </Select>
+                              {item.unitType === 'each' && !scopeOfWorkData.find(s => s.name === item.scopeName) && item.notes && !item.isAssembly && (
+                                <p className="text-xs text-muted-foreground italic">
+                                  📦 Assembly Package - {item.notes}
+                                </p>
+                              )}
+                            </>
+                          )}
                         </div>
                         
                         {/* Custom Scope Name Input - Only for Custom Items */}
@@ -665,7 +717,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                               <Input
                                 type="number"
                                 min="0"
-                                step="0.01"
+                                step="1"
                                 value={item.quantity || ""}
                                 onChange={(e) => updateLineItemQuantity(item.id, parseFloat(e.target.value) || 0)}
                                 placeholder="0"
