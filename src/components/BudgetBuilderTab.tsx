@@ -76,38 +76,50 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
 
   // Automatically update dynamic common area assembly when line items or total sqft changes
   useEffect(() => {
+    console.log('🔄 Common area useEffect triggered, lineItems count:', lineItems.length);
+    
     // Find if there's a dynamic common area line item
     const commonAreaItem = lineItems.find(item => item.isDynamicCommonArea);
     if (!commonAreaItem) {
+      console.log('❌ No common area found');
       lastCommonAreaSqft.current = null;
       return; // No common area to update
     }
 
     const projectSqft = parseFloat(totalSqft) || 0;
-    if (projectSqft === 0) return; // Can't calculate without total sqft
+    if (projectSqft === 0) {
+      console.log('❌ No total sqft set');
+      return; // Can't calculate without total sqft
+    }
 
     // Calculate current common area sqft based on other assemblies
     let usedSqft = 0;
     lineItems.forEach(item => {
       if (item.isAssembly && !item.isDynamicCommonArea && item.assemblySqft) {
-        // Use the stored assemblySqft property multiplied by quantity
-        usedSqft += item.assemblySqft * item.quantity;
+        const itemUsage = item.assemblySqft * item.quantity;
+        console.log(`  📦 ${item.scopeName}: ${item.assemblySqft} sqft × ${item.quantity} = ${itemUsage} sqft`);
+        usedSqft += itemUsage;
       }
     });
 
     const newCommonAreaSqft = Math.max(0, Math.round(projectSqft - usedSqft));
+    console.log(`📊 Total: ${projectSqft} sqft, Used: ${usedSqft} sqft, Common Area: ${newCommonAreaSqft} sqft`);
+    console.log(`📌 Last calculated: ${lastCommonAreaSqft.current}, New calculation: ${newCommonAreaSqft}`);
 
     // Check against the last calculated value (not the current state value)
     // This prevents infinite loops while still allowing updates when assemblies change
     if (lastCommonAreaSqft.current !== null && Math.abs(newCommonAreaSqft - lastCommonAreaSqft.current) < 1) {
+      console.log('⏭️ Skipping update - no significant change');
       return;
     }
 
     // Update the ref to track this calculation
     lastCommonAreaSqft.current = newCommonAreaSqft;
+    console.log('✅ Updating common area to', newCommonAreaSqft, 'sqft');
 
     // If the new square footage is 0 or negative, remove the common area instead of updating
     if (newCommonAreaSqft <= 0) {
+      console.log('🗑️ Removing common area (0 or negative sqft)');
       setLineItems(prev => prev.filter(item => !item.isDynamicCommonArea));
       lastCommonAreaSqft.current = null;
       return;
@@ -138,11 +150,13 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
         // Double-check the common area still exists before updating
         const stillHasCommonArea = prev.some(item => item.isDynamicCommonArea);
         if (!stillHasCommonArea) {
+          console.log('⚠️ Common area disappeared during update');
           return prev;
         }
         
-        return prev.map(item => {
+        const updated = prev.map(item => {
           if (item.isDynamicCommonArea) {
+            console.log('💾 Updating common area line item');
             return {
               ...item,
               scopeName: updatedAssembly.name,
@@ -154,6 +168,8 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
           }
           return item;
         });
+        
+        return updated;
       });
     } catch (error) {
       console.error('Error updating common area:', error);
