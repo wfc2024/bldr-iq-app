@@ -47,32 +47,11 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
   const [totalSqft, setTotalSqft] = useState("");
   const [showNotIncluded, setShowNotIncluded] = useState(false);
   
-  // Ref to track last calculated common area sqft to prevent loops
+  // Use a ref to track the last calculated common area sqft (prevents infinite loop)
   const lastCommonAreaSqft = useRef<number | null>(null);
-
-  // Reset for tutorial
-  useEffect(() => {
-    if (resetForTutorial) {
-      setShowTemplateSelector(true);
-      setProjectName("");
-      setAddress("");
-      setGcCompanyName("");
-      setGcMarkup("");
-      setGeneralConditions("");
-      setStatus("Draft");
-      setProjectNotes("");
-      setLineItems([]);
-      setTotalSqft("");
-      setShowNotIncluded(false);
-    }
-  }, [resetForTutorial]);
-
-  // Auto start from scratch for tutorial
-  useEffect(() => {
-    if (autoStartFromScratch) {
-      setShowTemplateSelector(false);
-    }
-  }, [autoStartFromScratch]);
+  
+  // Track the serialized state of assemblies to detect real changes
+  const lastAssembliesState = useRef<string>('');
 
   // Automatically update dynamic common area assembly when line items or total sqft changes
   useEffect(() => {
@@ -83,6 +62,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
     if (!commonAreaItem) {
       console.log('❌ No common area found');
       lastCommonAreaSqft.current = null;
+      lastAssembliesState.current = '';
       return; // No common area to update
     }
 
@@ -90,6 +70,22 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
     if (projectSqft === 0) {
       console.log('❌ No total sqft set');
       return; // Can't calculate without total sqft
+    }
+
+    // Create a snapshot of assembly state (excluding common area itself)
+    const assembliesSnapshot = lineItems
+      .filter(item => item.isAssembly && !item.isDynamicCommonArea)
+      .map(item => `${item.id}:${item.assemblySqft}:${item.quantity}`)
+      .sort()
+      .join('|');
+    
+    console.log('📸 Assemblies snapshot:', assembliesSnapshot);
+    console.log('📸 Last snapshot:', lastAssembliesState.current);
+    
+    // If assemblies haven't changed, skip update
+    if (assembliesSnapshot === lastAssembliesState.current && lastCommonAreaSqft.current !== null) {
+      console.log('⏭️ Skipping update - assemblies unchanged');
+      return;
     }
 
     // Calculate current common area sqft based on other assemblies
@@ -106,15 +102,9 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
     console.log(`📊 Total: ${projectSqft} sqft, Used: ${usedSqft} sqft, Common Area: ${newCommonAreaSqft} sqft`);
     console.log(`📌 Last calculated: ${lastCommonAreaSqft.current}, New calculation: ${newCommonAreaSqft}`);
 
-    // Check against the last calculated value (not the current state value)
-    // This prevents infinite loops while still allowing updates when assemblies change
-    if (lastCommonAreaSqft.current !== null && Math.abs(newCommonAreaSqft - lastCommonAreaSqft.current) < 1) {
-      console.log('⏭️ Skipping update - no significant change');
-      return;
-    }
-
     // Update the ref to track this calculation
     lastCommonAreaSqft.current = newCommonAreaSqft;
+    lastAssembliesState.current = assembliesSnapshot;
     console.log('✅ Updating common area to', newCommonAreaSqft, 'sqft');
 
     // If the new square footage is 0 or negative, remove the common area instead of updating
