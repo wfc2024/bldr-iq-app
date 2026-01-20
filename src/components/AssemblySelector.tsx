@@ -120,6 +120,15 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
 
   // Recalculate categories to include "Common Area" if it exists
   const allCategories = Array.from(new Set(allAssemblies.map(a => a.category)));
+  
+  // Sort categories to put "Common Area" first, then keep the rest in their original order
+  const sortedCategories = allCategories.sort((a, b) => {
+    if (a === 'Common Area') return -1; // Common Area goes first
+    if (b === 'Common Area') return 1;  // Common Area goes first
+    // Keep original order for others (Office before Single Occ Restroom)
+    const originalOrder = ['Office', 'Single Occ Restroom'];
+    return originalOrder.indexOf(a) - originalOrder.indexOf(b);
+  });
 
   return (
     <>
@@ -140,14 +149,14 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
 
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
             <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${allCategories.length}, 1fr)` }}>
-              {allCategories.map(category => (
+              {sortedCategories.map(category => (
                 <TabsTrigger key={category} value={category} className="text-xs">
                   {category}
                 </TabsTrigger>
               ))}
             </TabsList>
 
-            {allCategories.map(category => (
+            {sortedCategories.map(category => (
               <TabsContent key={category} value={category} className="space-y-3 mt-4">
                 {allAssemblies
                   .filter(a => a.category === category)
