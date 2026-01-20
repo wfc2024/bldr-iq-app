@@ -8,6 +8,10 @@ export interface LineItem {
   notes?: string;
   isCustom?: boolean;
   customScopeName?: string;
+  isAssembly?: boolean; // Flag for assembly package line items
+  assemblyName?: string; // Track which assembly this belongs to for cost breakdown grouping
+  isDynamicCommonArea?: boolean; // Flag for the auto-updating common area assembly
+  assemblySqft?: number; // Square footage footprint of the assembly (for common area calculations)
   // GC-specific cost breakdown
   laborCost?: number;
   materialCost?: number;
