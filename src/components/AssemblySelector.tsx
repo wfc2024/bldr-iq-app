@@ -116,8 +116,8 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
           {canAddCommonArea && (
             <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-300 shadow-sm">
               <CardHeader className="pb-3">
-                <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
-                  <div className="flex-1 w-full">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <Home className="size-4 text-blue-600" />
                       <CardTitle className="text-base text-blue-900">
@@ -134,7 +134,7 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
                   <Button 
                     size="sm"
                     onClick={handleAddCommonArea}
-                    className="bg-[#1B2D4F] hover:bg-[#152340] text-white w-full sm:w-auto shrink-0"
+                    className="bg-[#1B2D4F] hover:bg-[#152340] text-white shrink-0"
                   >
                     Add Common Area
                   </Button>
