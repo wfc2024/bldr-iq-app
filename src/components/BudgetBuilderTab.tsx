@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -46,6 +46,9 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [totalSqft, setTotalSqft] = useState("");
   const [showNotIncluded, setShowNotIncluded] = useState(false);
+  
+  // Ref to prevent infinite loop in common area updates
+  const isUpdatingCommonArea = useRef(false);
 
   // Reset for tutorial
   useEffect(() => {
@@ -73,6 +76,9 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
 
   // Automatically update dynamic common area assembly when line items or total sqft changes
   useEffect(() => {
+    // Prevent infinite loop - skip if we're already updating
+    if (isUpdatingCommonArea.current) return;
+    
     // Find if there's a dynamic common area line item
     const commonAreaItem = lineItems.find(item => item.isDynamicCommonArea);
     if (!commonAreaItem) return; // No common area to update
@@ -95,51 +101,73 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
     const currentCommonAreaSqft = commonAreaItem.assemblySqft || 0;
     if (Math.abs(newCommonAreaSqft - currentCommonAreaSqft) < 1) return;
 
+    // Set the updating flag
+    isUpdatingCommonArea.current = true;
+
     // If the new square footage is 0 or negative, remove the common area instead of updating
     if (newCommonAreaSqft <= 0) {
       setLineItems(prev => prev.filter(item => !item.isDynamicCommonArea));
+      // Reset the flag after a delay
+      setTimeout(() => {
+        isUpdatingCommonArea.current = false;
+      }, 100);
       return;
     }
 
     // Regenerate the common area assembly with new sqft
-    const { createCommonAreaAssembly } = require('../data/assemblies');
-    const updatedAssembly = createCommonAreaAssembly(newCommonAreaSqft);
+    try {
+      const { createCommonAreaAssembly } = require('../data/assemblies');
+      const updatedAssembly = createCommonAreaAssembly(newCommonAreaSqft);
 
-    // Recalculate costs
-    let assemblyUnitCost = 0;
-    updatedAssembly.items.forEach(assemblyItem => {
-      const scope = scopeOfWorkData.find(s => s.name === assemblyItem.scopeName);
-      if (scope) {
-        assemblyUnitCost += assemblyItem.quantity * scope.defaultUnitCost;
-      }
-    });
-
-    // Create detailed notes
-    const itemsList = updatedAssembly.items
-      .map(item => `• ${item.scopeName} (${item.quantity} ${scopeOfWorkData.find(s => s.name === item.scopeName)?.unitType || 'units'})`)
-      .join('\\n');
-    const detailedNotes = `${updatedAssembly.description}\\n\\nIncludes:\\n${itemsList}`;
-
-    // Update the line item (use functional update to avoid stale closure)
-    setLineItems(prev => {
-      // Double-check the common area still exists before updating
-      const stillHasCommonArea = prev.some(item => item.isDynamicCommonArea);
-      if (!stillHasCommonArea) return prev;
-      
-      return prev.map(item => {
-        if (item.isDynamicCommonArea) {
-          return {
-            ...item,
-            scopeName: updatedAssembly.name,
-            unitCost: assemblyUnitCost,
-            total: assemblyUnitCost,
-            notes: detailedNotes,
-            assemblySqft: updatedAssembly.squareFeet, // Update the stored sqft
-          };
+      // Recalculate costs
+      let assemblyUnitCost = 0;
+      updatedAssembly.items.forEach(assemblyItem => {
+        const scope = scopeOfWorkData.find(s => s.name === assemblyItem.scopeName);
+        if (scope) {
+          assemblyUnitCost += assemblyItem.quantity * scope.defaultUnitCost;
         }
-        return item;
       });
-    });
+
+      // Create detailed notes
+      const itemsList = updatedAssembly.items
+        .map(item => `• ${item.scopeName} (${item.quantity} ${scopeOfWorkData.find(s => s.name === item.scopeName)?.unitType || 'units'})`)
+        .join('\\n');
+      const detailedNotes = `${updatedAssembly.description}\\n\\nIncludes:\\n${itemsList}`;
+
+      // Update the line item (use functional update to avoid stale closure)
+      setLineItems(prev => {
+        // Double-check the common area still exists before updating
+        const stillHasCommonArea = prev.some(item => item.isDynamicCommonArea);
+        if (!stillHasCommonArea) {
+          isUpdatingCommonArea.current = false;
+          return prev;
+        }
+        
+        const updated = prev.map(item => {
+          if (item.isDynamicCommonArea) {
+            return {
+              ...item,
+              scopeName: updatedAssembly.name,
+              unitCost: assemblyUnitCost,
+              total: assemblyUnitCost,
+              notes: detailedNotes,
+              assemblySqft: updatedAssembly.squareFeet, // Update the stored sqft
+            };
+          }
+          return item;
+        });
+        
+        // Reset the flag after a delay
+        setTimeout(() => {
+          isUpdatingCommonArea.current = false;
+        }, 100);
+        
+        return updated;
+      });
+    } catch (error) {
+      console.error('Error updating common area:', error);
+      isUpdatingCommonArea.current = false;
+    }
 
   }, [lineItems, totalSqft]); // Re-run when line items or total sqft changes
 
