@@ -20,7 +20,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { formatCurrency } from "../utils/formatCurrency";
 import { calculateCategoryBreakdown } from "../utils/categoryBreakdown";
 import { downloadPDF } from "../utils/pdfExport";
-import { Assembly } from "../data/assemblies";
+import { Assembly, createCommonAreaAssembly } from "../data/assemblies";
 import {
   Collapsible,
   CollapsibleContent,
@@ -131,7 +131,6 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
 
     // Regenerate the common area assembly with new sqft
     try {
-      const { createCommonAreaAssembly } = require('../data/assemblies');
       const updatedAssembly = createCommonAreaAssembly(newCommonAreaSqft);
 
       // Recalculate costs
@@ -146,8 +145,8 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
       // Create detailed notes
       const itemsList = updatedAssembly.items
         .map(item => `• ${item.scopeName} (${item.quantity} ${scopeOfWorkData.find(s => s.name === item.scopeName)?.unitType || 'units'})`)
-        .join('\\n');
-      const detailedNotes = `${updatedAssembly.description}\\n\\nIncludes:\\n${itemsList}`;
+        .join('\n');
+      const detailedNotes = `${updatedAssembly.description}\n\nIncludes:\n${itemsList}`;
 
       // Update the line item (use functional update to avoid stale closure)
       setLineItems(prev => {
