@@ -114,7 +114,7 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
 
           {/* Common Area Button */}
           {canAddCommonArea && (
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-4 space-y-3">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-4 space-y-3 mb-4">
               <div className="flex items-center gap-2">
                 <Home className="size-4 text-blue-600" />
                 <h3 className="text-base font-semibold text-blue-900">
@@ -128,8 +128,15 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
                 Add finishes for the remaining {commonAreaSqft} SF of common space (after deducting offices and restrooms)
               </p>
               <button 
-                onClick={handleAddCommonArea}
-                className="bg-[#1B2D4F] hover:bg-[#152340] text-white px-4 py-2 rounded text-sm font-medium"
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Common Area button clicked!', commonAreaSqft);
+                  handleAddCommonArea();
+                }}
+                className="bg-[#1B2D4F] hover:bg-[#152340] text-white px-4 py-2 rounded text-sm font-medium transition-colors cursor-pointer"
+                style={{ display: 'block' }}
               >
                 Add Package
               </button>
