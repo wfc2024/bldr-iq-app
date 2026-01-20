@@ -78,14 +78,18 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
     const projectSqft = parseFloat(totalProjectSqft.toString()) || 0;
     if (projectSqft <= 0) return 0;
     
-    // Calculate total square footage used by assemblies
+    // Calculate total square footage used by assemblies (excluding dynamic common area)
     let usedSqft = 0;
     if (existingLineItems) {
       existingLineItems.forEach(item => {
-        // Check if this line item is an assembly with a footprint
-        const assembly = assemblies.find(a => a.name === item.scopeName);
-        if (assembly && assembly.squareFeet) {
-          usedSqft += assembly.squareFeet * item.quantity;
+        // Skip dynamic common area - we're calculating how much is available FOR it
+        if (item.isDynamicCommonArea) {
+          return;
+        }
+        
+        // Use the stored assemblySqft property if available (for assembly line items)
+        if (item.isAssembly && item.assemblySqft) {
+          usedSqft += item.assemblySqft * item.quantity;
         }
       });
     }
@@ -95,7 +99,11 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
   };
 
   const commonAreaSqft = calculateCommonAreaSqft();
-  const canAddCommonArea = commonAreaSqft > 0;
+  
+  // Check if common area already exists
+  const hasCommonArea = existingLineItems?.some(item => item.isDynamicCommonArea) || false;
+  
+  const canAddCommonArea = commonAreaSqft > 0 && !hasCommonArea;
 
   const handleAddCommonArea = () => {
     const commonAreaAssembly = createCommonAreaAssembly(commonAreaSqft);
