@@ -116,27 +116,25 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
           {canAddCommonArea && (
             <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-300 shadow-sm">
               <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Home className="size-4 text-blue-600" />
-                      <CardTitle className="text-base text-blue-900">
-                        Remaining Common Area Available
-                      </CardTitle>
-                    </div>
-                    <Badge className="bg-blue-600 hover:bg-blue-600 text-white text-xs mt-2 w-fit">
-                      {commonAreaSqft} SF Remaining
-                    </Badge>
-                    <CardDescription className="text-xs mt-1 text-blue-700">
-                      Add finishes for the remaining {commonAreaSqft} SF of common space (after deducting offices and restrooms)
-                    </CardDescription>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Home className="size-4 text-blue-600" />
+                    <CardTitle className="text-base text-blue-900">
+                      Remaining Common Area Available
+                    </CardTitle>
                   </div>
+                  <Badge className="bg-blue-600 hover:bg-blue-600 text-white text-xs w-fit">
+                    {commonAreaSqft} SF Remaining
+                  </Badge>
+                  <CardDescription className="text-xs text-blue-700">
+                    Add finishes for the remaining {commonAreaSqft} SF of common space (after deducting offices and restrooms)
+                  </CardDescription>
                   <Button 
                     size="sm"
                     onClick={handleAddCommonArea}
-                    className="bg-[#1B2D4F] hover:bg-[#152340] text-white shrink-0"
+                    className="bg-[#1B2D4F] hover:bg-[#152340] text-white"
                   >
-                    Add Common Area
+                    Add Package
                   </Button>
                 </div>
               </CardHeader>
