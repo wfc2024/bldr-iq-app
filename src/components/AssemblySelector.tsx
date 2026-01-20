@@ -3,13 +3,15 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Badge } from './ui/badge';
-import { Package, CheckCircle, Percent, ChevronDown, ChevronUp } from 'lucide-react';
-import { assemblies, assemblyCategories, Assembly } from '../data/assemblies';
+import { Package, CheckCircle, Percent, ChevronDown, ChevronUp, Home } from 'lucide-react';
+import { assemblies, assemblyCategories, Assembly, createCommonAreaAssembly } from '../data/assemblies';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { scopeOfWorkData } from '../data/scopeOfWork';
 import { formatCurrency } from '../utils/formatCurrency';
+import { LineItem } from '../types/project';
+import { toast } from 'sonner@2.0.3';
 import {
   Collapsible,
   CollapsibleContent,
@@ -18,9 +20,11 @@ import {
 
 interface AssemblySelectorProps {
   onSelectAssembly: (assembly: Assembly, quantity: number) => void;
+  totalProjectSqft?: number;
+  existingLineItems?: LineItem[];
 }
 
-export function AssemblySelector({ onSelectAssembly }: AssemblySelectorProps) {
+export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingLineItems }: AssemblySelectorProps) {
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>(assemblyCategories[0] || 'Office');
   const [quantityDialogOpen, setQuantityDialogOpen] = useState(false);
@@ -59,6 +63,38 @@ export function AssemblySelector({ onSelectAssembly }: AssemblySelectorProps) {
 
   const filteredAssemblies = assemblies.filter(a => a.category === selectedCategory);
 
+  // Calculate remaining common area square footage
+  const calculateCommonAreaSqft = (): number => {
+    if (!totalProjectSqft) return 0;
+    
+    const projectSqft = parseFloat(totalProjectSqft.toString()) || 0;
+    if (projectSqft <= 0) return 0;
+    
+    // Calculate total square footage used by assemblies
+    let usedSqft = 0;
+    if (existingLineItems) {
+      existingLineItems.forEach(item => {
+        // Check if this line item is an assembly with a footprint
+        const assembly = assemblies.find(a => a.name === item.scopeName);
+        if (assembly && assembly.squareFeet) {
+          usedSqft += assembly.squareFeet * item.quantity;
+        }
+      });
+    }
+    
+    const remainingSqft = projectSqft - usedSqft;
+    return remainingSqft > 0 ? Math.round(remainingSqft) : 0;
+  };
+
+  const commonAreaSqft = calculateCommonAreaSqft();
+  const canAddCommonArea = commonAreaSqft > 0;
+
+  const handleAddCommonArea = () => {
+    const commonAreaAssembly = createCommonAreaAssembly(commonAreaSqft);
+    onSelectAssembly(commonAreaAssembly, 1);
+    setOpen(false);
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -75,6 +111,37 @@ export function AssemblySelector({ onSelectAssembly }: AssemblySelectorProps) {
               Save time with ready-made bundles of commonly needed items. Perfect for offices, bathrooms, and more.
             </DialogDescription>
           </DialogHeader>
+
+          {/* Common Area Button */}
+          {canAddCommonArea && (
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-300 shadow-sm">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Home className="size-4 text-blue-600" />
+                      <CardTitle className="text-base text-blue-900">
+                        Remaining Common Area Available
+                      </CardTitle>
+                    </div>
+                    <Badge className="bg-blue-600 hover:bg-blue-600 text-white text-xs mt-2 w-fit">
+                      {commonAreaSqft} SF Remaining
+                    </Badge>
+                    <CardDescription className="text-xs mt-1 text-blue-700">
+                      Add finishes for the remaining {commonAreaSqft} SF of common space (after deducting offices and restrooms)
+                    </CardDescription>
+                  </div>
+                  <Button 
+                    size="sm"
+                    onClick={handleAddCommonArea}
+                    className="bg-[#1B2D4F] hover:bg-[#152340] text-white ml-2"
+                  >
+                    Add Common Area
+                  </Button>
+                </div>
+              </CardHeader>
+            </Card>
+          )}
 
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
             <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${assemblyCategories.length}, 1fr)` }}>
