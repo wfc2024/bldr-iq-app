@@ -32,6 +32,14 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
   const [quantity, setQuantity] = useState(1);
 
   const handleSelectClick = (assembly: Assembly) => {
+    // Special handling for dynamic common area - add directly without quantity dialog
+    if (assembly.id === 'common-area-dynamic') {
+      onSelectAssembly(assembly, 1);
+      setOpen(false);
+      toast.success(`Added ${assembly.name}`);
+      return;
+    }
+    
     setSelectedAssembly(assembly);
     setQuantity(1);
     setQuantityDialogOpen(true);
@@ -95,6 +103,16 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
     setOpen(false);
   };
 
+  // Create a list of assemblies that includes the dynamic common area if applicable
+  const allAssemblies = [...assemblies];
+  if (canAddCommonArea) {
+    const commonAreaAssembly = createCommonAreaAssembly(commonAreaSqft);
+    allAssemblies.push(commonAreaAssembly);
+  }
+
+  // Recalculate categories to include "Common Area" if it exists
+  const allCategories = Array.from(new Set(allAssemblies.map(a => a.category)));
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -112,49 +130,18 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
             </DialogDescription>
           </DialogHeader>
 
-          {/* Common Area Button */}
-          {canAddCommonArea && (
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-4 space-y-3 mb-4">
-              <div className="flex items-center gap-2">
-                <Home className="size-4 text-blue-600" />
-                <h3 className="text-base font-semibold text-blue-900">
-                  Remaining Common Area Available
-                </h3>
-              </div>
-              <div className="bg-blue-600 text-white text-xs px-2 py-1 rounded w-fit">
-                {commonAreaSqft} SF Remaining
-              </div>
-              <p className="text-xs text-blue-700">
-                Add finishes for the remaining {commonAreaSqft} SF of common space (after deducting offices and restrooms)
-              </p>
-              <button 
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('Common Area button clicked!', commonAreaSqft);
-                  handleAddCommonArea();
-                }}
-                className="bg-[#1B2D4F] hover:bg-[#152340] text-white px-4 py-2 rounded text-sm font-medium transition-colors cursor-pointer"
-                style={{ display: 'block' }}
-              >
-                Add Package
-              </button>
-            </div>
-          )}
-
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-            <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${assemblyCategories.length}, 1fr)` }}>
-              {assemblyCategories.map(category => (
+            <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${allCategories.length}, 1fr)` }}>
+              {allCategories.map(category => (
                 <TabsTrigger key={category} value={category} className="text-xs">
                   {category}
                 </TabsTrigger>
               ))}
             </TabsList>
 
-            {assemblyCategories.map(category => (
+            {allCategories.map(category => (
               <TabsContent key={category} value={category} className="space-y-3 mt-4">
-                {assemblies
+                {allAssemblies
                   .filter(a => a.category === category)
                   .map(assembly => (
                     <Card key={assembly.id} className="cursor-pointer hover:border-[#F7931E] transition-colors">
