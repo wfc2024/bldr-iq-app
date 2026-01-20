@@ -56,6 +56,14 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
   // Automatically update dynamic common area assembly when line items or total sqft changes
   useEffect(() => {
     console.log('🔄 Common area useEffect triggered, lineItems count:', lineItems.length);
+    console.log('📋 All line items:', lineItems.map(item => ({
+      id: item.id.substring(0, 8),
+      name: item.scopeName,
+      isAssembly: item.isAssembly,
+      isDynamicCommonArea: item.isDynamicCommonArea,
+      assemblySqft: item.assemblySqft,
+      quantity: item.quantity
+    })));
     
     // Find if there's a dynamic common area line item
     const commonAreaItem = lineItems.find(item => item.isDynamicCommonArea);
@@ -65,6 +73,8 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
       lastAssembliesState.current = '';
       return; // No common area to update
     }
+    
+    console.log('✅ Found common area:', commonAreaItem.scopeName);
 
     const projectSqft = parseFloat(totalSqft) || 0;
     if (projectSqft === 0) {
@@ -87,6 +97,8 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
       console.log('⏭️ Skipping update - assemblies unchanged');
       return;
     }
+    
+    console.log('🆕 Assemblies changed! Proceeding with update...');
 
     // Calculate current common area sqft based on other assemblies
     let usedSqft = 0;
@@ -95,6 +107,8 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
         const itemUsage = item.assemblySqft * item.quantity;
         console.log(`  📦 ${item.scopeName}: ${item.assemblySqft} sqft × ${item.quantity} = ${itemUsage} sqft`);
         usedSqft += itemUsage;
+      } else if (item.isAssembly && !item.isDynamicCommonArea && !item.assemblySqft) {
+        console.log(`  ⚠️ ${item.scopeName}: No assemblySqft property!`);
       }
     });
 
