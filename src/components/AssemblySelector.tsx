@@ -114,31 +114,26 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
 
           {/* Common Area Button */}
           {canAddCommonArea && (
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-300 shadow-sm">
-              <CardHeader className="pb-3">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Home className="size-4 text-blue-600" />
-                    <CardTitle className="text-base text-blue-900">
-                      Remaining Common Area Available
-                    </CardTitle>
-                  </div>
-                  <Badge className="bg-blue-600 hover:bg-blue-600 text-white text-xs w-fit">
-                    {commonAreaSqft} SF Remaining
-                  </Badge>
-                  <CardDescription className="text-xs text-blue-700">
-                    Add finishes for the remaining {commonAreaSqft} SF of common space (after deducting offices and restrooms)
-                  </CardDescription>
-                  <Button 
-                    size="sm"
-                    onClick={handleAddCommonArea}
-                    className="bg-[#1B2D4F] hover:bg-[#152340] text-white"
-                  >
-                    Add Package
-                  </Button>
-                </div>
-              </CardHeader>
-            </Card>
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Home className="size-4 text-blue-600" />
+                <h3 className="text-base font-semibold text-blue-900">
+                  Remaining Common Area Available
+                </h3>
+              </div>
+              <div className="bg-blue-600 text-white text-xs px-2 py-1 rounded w-fit">
+                {commonAreaSqft} SF Remaining
+              </div>
+              <p className="text-xs text-blue-700">
+                Add finishes for the remaining {commonAreaSqft} SF of common space (after deducting offices and restrooms)
+              </p>
+              <button 
+                onClick={handleAddCommonArea}
+                className="bg-[#1B2D4F] hover:bg-[#152340] text-white px-4 py-2 rounded text-sm font-medium"
+              >
+                Add Package
+              </button>
+            </div>
           )}
 
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
