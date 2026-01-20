@@ -71,6 +71,66 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
     }
   }, [autoStartFromScratch]);
 
+  // Automatically update dynamic common area assembly when line items or total sqft changes
+  useEffect(() => {
+    // Find if there's a dynamic common area line item
+    const commonAreaItem = lineItems.find(item => item.isDynamicCommonArea);
+    if (!commonAreaItem) return; // No common area to update
+
+    const projectSqft = parseFloat(totalSqft) || 0;
+    if (projectSqft === 0) return; // Can't calculate without total sqft
+
+    // Calculate current common area sqft based on other assemblies
+    let usedSqft = 0;
+    lineItems.forEach(item => {
+      if (item.isAssembly && !item.isDynamicCommonArea && item.assemblySqft) {
+        // Use the stored assemblySqft property multiplied by quantity
+        usedSqft += item.assemblySqft * item.quantity;
+      }
+    });
+
+    const newCommonAreaSqft = Math.max(0, Math.round(projectSqft - usedSqft));
+
+    // If the common area sqft hasn't changed meaningfully, don't update
+    const currentCommonAreaSqft = commonAreaItem.assemblySqft || 0;
+    if (Math.abs(newCommonAreaSqft - currentCommonAreaSqft) < 1) return;
+
+    // Regenerate the common area assembly with new sqft
+    const { createCommonAreaAssembly } = require('../data/assemblies');
+    const updatedAssembly = createCommonAreaAssembly(newCommonAreaSqft);
+
+    // Recalculate costs
+    let assemblyUnitCost = 0;
+    updatedAssembly.items.forEach(assemblyItem => {
+      const scope = scopeOfWorkData.find(s => s.name === assemblyItem.scopeName);
+      if (scope) {
+        assemblyUnitCost += assemblyItem.quantity * scope.defaultUnitCost;
+      }
+    });
+
+    // Create detailed notes
+    const itemsList = updatedAssembly.items
+      .map(item => `• ${item.scopeName} (${item.quantity} ${scopeOfWorkData.find(s => s.name === item.scopeName)?.unitType || 'units'})`)
+      .join('\n');
+    const detailedNotes = `${updatedAssembly.description}\n\nIncludes:\n${itemsList}`;
+
+    // Update the line item
+    setLineItems(prev => prev.map(item => {
+      if (item.isDynamicCommonArea) {
+        return {
+          ...item,
+          scopeName: updatedAssembly.name,
+          unitCost: assemblyUnitCost,
+          total: assemblyUnitCost,
+          notes: detailedNotes,
+          assemblySqft: updatedAssembly.squareFeet, // Update the stored sqft
+        };
+      }
+      return item;
+    }));
+
+  }, [lineItems, totalSqft]); // Re-run when line items or total sqft changes
+
   const handleSelectTemplate = (template: ProjectTemplate) => {
     setProjectName(template.name);
     setGcMarkup(template.defaultGCMarkup.toString());
@@ -130,6 +190,15 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
     const finalUnitCost = assemblyUnitCost * discountMultiplier;
     const total = quantity * finalUnitCost;
 
+    // Create detailed notes listing all included items
+    const itemsList = assembly.items
+      .map(item => `• ${item.scopeName} (${item.quantity} ${scopeOfWorkData.find(s => s.name === item.scopeName)?.unitType || 'units'})`)
+      .join('\n');
+    const detailedNotes = `${assembly.description}\n\nIncludes:\n${itemsList}`;
+
+    // Check if this is a dynamic common area assembly
+    const isDynamicCommonArea = assembly.id === 'common-area-dynamic';
+
     // Create a single line item for the assembly
     const assemblyLineItem: LineItem = {
       id: crypto.randomUUID(),
@@ -138,8 +207,11 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
       quantity: quantity,
       unitCost: finalUnitCost,
       total: total,
-      notes: assembly.description,
+      notes: detailedNotes,
       isAssembly: true, // Flag to identify assembly line items
+      assemblyName: assembly.name, // Track assembly name for cost breakdown
+      isDynamicCommonArea: isDynamicCommonArea, // Flag for auto-updating common area
+      assemblySqft: assembly.squareFeet, // Store the assembly footprint for calculations
     };
 
     // Insert at the top of the line items list
@@ -566,7 +638,11 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
               <CardTitle className="text-lg md:text-xl">Line Items</CardTitle>
               <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                 <div data-tutorial="assemblies">
-                  <AssemblySelector onSelectAssembly={handleSelectAssembly} />
+                  <AssemblySelector 
+                    onSelectAssembly={handleSelectAssembly}
+                    totalProjectSqft={parseFloat(totalSqft) || 0}
+                    existingLineItems={lineItems}
+                  />
                 </div>
                 <Button 
                   variant="outline" 
