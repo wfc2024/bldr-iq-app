@@ -41,6 +41,27 @@ export const assemblies: Assembly[] = [
     ],
   },
   {
+    id: 'breakroom',
+    name: 'Breakroom (175 SF)',
+    description: 'Complete breakroom with cabinets, countertops, appliances, plumbing, and finishes',
+    category: 'Breakroom',
+    squareFeet: 175, // 175 SF footprint
+    scaleDiscounts: [],
+    items: [
+      { scopeName: '10\' Metal Stud Wall + Sheetrock', quantity: 38, notes: '38 LF perimeter walls' },
+      { scopeName: 'Upper and Lower Cabinets', quantity: 10, notes: '10 LF of upper and lower cabinets' },
+      { scopeName: 'Solid Surface Counter Tops', quantity: 20, notes: '20 SF solid surface countertops' },
+      { scopeName: 'New plumbing fixtures including necessary underground and overhead work', quantity: 2, notes: 'Sink and connections' },
+      { scopeName: 'Refrigerator (includes appliance and electrical connection)', quantity: 1, notes: 'Breakroom refrigerator with hookup' },
+      { scopeName: 'Dishwasher (includes appliance and electrical connection)', quantity: 1, notes: 'Breakroom dishwasher with hookup' },
+      { scopeName: 'LVT', quantity: 175, notes: '175 SF flooring' },
+      { scopeName: 'Rubber Base', quantity: 53, notes: '53 LF perimeter' },
+      { scopeName: 'General Electrical Distribution for Tenant Improvement', quantity: 175, notes: '175 SF electrical distribution' },
+      { scopeName: 'Lighting Allowance for Tentant Improvement', quantity: 175, notes: '175 SF lighting' },
+      { scopeName: 'New General Duct Work and Distribution', quantity: 175, notes: '175 SF duct work distribution' },
+    ],
+  },
+  {
     id: 'single-restroom',
     name: 'Single Occupancy Restroom (8x8)',
     description: 'Complete ADA-compliant restroom with toilet, sink, accessories, and finishes',
