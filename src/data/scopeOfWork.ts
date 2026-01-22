@@ -94,12 +94,15 @@ export const scopeOfWorkData: ScopeOfWork[] = [
   { group: 'Mechanical', name: 'New Type 1 Hood 10 lf or less', unitType: 'each', defaultUnitCost: 65000, unitReasoning: getUnitReasoning('each') },
   { group: 'Electrical', name: 'General Electrical Distribution for Tenant Improvement', unitType: 'sqft', defaultUnitCost: 18, unitReasoning: getUnitReasoning('sqft') },
   { group: 'Electrical', name: 'Lighting Allowance for Tentant Improvement', unitType: 'sqft', defaultUnitCost: 3, unitReasoning: getUnitReasoning('sqft') },
+  { group: 'Electrical', name: 'New Troffer Lighting', unitType: 'sqft', defaultUnitCost: 3, unitReasoning: getUnitReasoning('sqft') },
   { group: 'Electrical', name: 'Light Fixture Swap 1 for 1', unitType: 'each', defaultUnitCost: 300, unitReasoning: getUnitReasoning('each') },
   { group: 'Electrical', name: 'Electrical Gear Allowance (panel and breakers)', unitType: 'each', defaultUnitCost: 5000, unitReasoning: getUnitReasoning('each') },
   { group: 'Electrical', name: 'Low Voltage Allowance space under 2500 sqft', unitType: 'lump sum', defaultUnitCost: 5000, unitReasoning: getUnitReasoning('lump sum') },
   { group: 'Electrical', name: 'Low Voltage Allowance space 2500 - 5000 sqft', unitType: 'lump sum', defaultUnitCost: 7500, unitReasoning: getUnitReasoning('lump sum') },
   { group: 'Electrical', name: 'Low Voltage Allowance space over 5000 sqft', unitType: 'lump sum', defaultUnitCost: 10000, unitReasoning: getUnitReasoning('lump sum') },
   { group: 'Electrical', name: 'Fire Alarm Allowance', unitType: 'lump sum', defaultUnitCost: 10000, unitReasoning: getUnitReasoning('lump sum') },
+  { group: 'Appliances', name: 'Refrigerator (includes appliance and electrical connection)', unitType: 'each', defaultUnitCost: 2500, unitReasoning: getUnitReasoning('each') },
+  { group: 'Appliances', name: 'Dishwasher (includes appliance and electrical connection)', unitType: 'each', defaultUnitCost: 1250, unitReasoning: getUnitReasoning('each') },
 ];
 
 // Extract unique groups from data in the order they appear (not alphabetically)
