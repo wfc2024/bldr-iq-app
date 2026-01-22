@@ -125,8 +125,8 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
   const sortedCategories = allCategories.sort((a, b) => {
     if (a === 'Common Area') return -1; // Common Area goes first
     if (b === 'Common Area') return 1;  // Common Area goes first
-    // Keep original order for others (Office before Single Occ Restroom)
-    const originalOrder = ['Office', 'Single Occ Restroom'];
+    // Keep original order for others (Office, Breakroom, Single Occ Restroom)
+    const originalOrder = ['Office', 'Breakroom', 'Single Occ Restroom'];
     return originalOrder.indexOf(a) - originalOrder.indexOf(b);
   });
 
