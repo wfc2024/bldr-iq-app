@@ -36,8 +36,8 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
                   ) : (
                     <FileText className="size-5 text-primary mt-1 flex-shrink-0" />
                   )}
-                  <div className="flex-1">
-                    <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-base md:text-lg flex items-center gap-2 flex-wrap">
                       {template.name}
                       {isAssemblyTemplate && (
                         <span className="text-xs font-normal bg-[#F7931E] text-white px-2 py-0.5 rounded">
@@ -46,13 +46,13 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
                       )}
                     </CardTitle>
                     <CardDescription className="text-sm mt-1">{template.description}</CardDescription>
-                    {isAssemblyTemplate && (
-                      <p className="text-xs text-[#F7931E] dark:text-orange-400 mt-2 font-medium">
-                        💡 Use "Add Package" button to quickly add offices, restrooms, breakrooms, and reception areas
-                      </p>
-                    )}
                   </div>
                 </div>
+                {isAssemblyTemplate && (
+                  <p className="text-xs text-[#F7931E] dark:text-orange-400 mt-3 font-medium">
+                    💡 Use "Add Package" button to quickly add offices, restrooms, breakrooms, and reception areas
+                  </p>
+                )}
               </CardHeader>
               <CardContent className="pt-0">
                 <Button 
