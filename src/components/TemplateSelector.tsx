@@ -24,7 +24,7 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
           return (
             <Card 
               key={template.name} 
-              className={`flex flex-col hover:border-primary transition-colors ${isAssemblyTemplate ? 'border-[#F7931E] bg-orange-50/30 dark:bg-orange-950/20' : ''}`}
+              className={`hover:border-primary transition-colors ${isAssemblyTemplate ? 'border-[#F7931E] bg-orange-50/30 dark:bg-orange-950/20' : ''}`}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start gap-3">
@@ -51,7 +51,7 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-0 mt-auto">
+              <CardContent>
                 <Button 
                   variant={isAssemblyTemplate ? "default" : "outline"} 
                   className={`w-full ${isAssemblyTemplate ? 'bg-[#F7931E] hover:bg-[#e8851a] border-[#F7931E]' : ''}`}
