@@ -37,7 +37,10 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
                     <CardTitle className="text-base md:text-lg flex items-center gap-2 flex-wrap">
                       {template.name}
                       {isAssemblyTemplate && (
-                        <span className="text-xs font-normal bg-[#F7931E] text-white px-2 py-0.5 rounded">
+                        <span 
+                          className="text-xs font-normal px-2 py-0.5 rounded"
+                          style={{ backgroundColor: '#F7931E', color: 'white' }}
+                        >
                           RECOMMENDED
                         </span>
                       )}
@@ -53,8 +56,13 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
               </CardHeader>
               <CardContent>
                 <Button 
-                  variant={isAssemblyTemplate ? "default" : "outline"} 
-                  className={`w-full ${isAssemblyTemplate ? '!bg-[#F7931E] hover:!bg-[#e8851a] !border-[#F7931E] !text-white' : ''}`}
+                  variant={isAssemblyTemplate ? "default" : "outline"}
+                  style={isAssemblyTemplate ? { 
+                    backgroundColor: '#F7931E', 
+                    borderColor: '#F7931E', 
+                    color: 'white' 
+                  } : undefined}
+                  className={`w-full ${isAssemblyTemplate ? 'hover:!bg-[#e8851a]' : ''}`}
                   onClick={() => onSelectTemplate(template)}
                 >
                   Use This Template
