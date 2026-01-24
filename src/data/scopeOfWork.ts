@@ -83,6 +83,7 @@ export const scopeOfWorkData: ScopeOfWork[] = [
   { group: 'Finishes', name: 'Solid Surface Counter Tops', unitType: 'sqft', defaultUnitCost: 95, unitReasoning: getUnitReasoning('sqft') },
   { group: 'Specialties', name: 'Bathroom Partitions (2 Restrooms: 3 stalls and 1 Urinal Screen)', unitType: 'each', defaultUnitCost: 7500, unitReasoning: getUnitReasoning('each') },
   { group: 'Specialties', name: 'Bathroom Accessories per RR', unitType: 'lump sum', defaultUnitCost: 750, unitReasoning: getUnitReasoning('lump sum') },
+  { group: 'Specialties', name: 'Signage', unitType: 'lump sum', defaultUnitCost: 2500, unitReasoning: getUnitReasoning('lump sum') },
   { group: 'Specialties', name: 'Fire Exstinguishers', unitType: 'each', defaultUnitCost: 200, unitReasoning: getUnitReasoning('each') },
   { group: 'Fire Sprinklers', name: 'Relocate Exisitng Heads', unitType: 'each', defaultUnitCost: 350, unitReasoning: getUnitReasoning('each') },
   { group: 'Fire Sprinklers', name: 'Sprinkler Design and Permit (require if any heads to be relocated)', unitType: 'lump sum', defaultUnitCost: 1500, unitReasoning: getUnitReasoning('lump sum') },
