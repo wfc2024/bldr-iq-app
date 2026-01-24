@@ -29,7 +29,7 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
   const [selectedCategory, setSelectedCategory] = useState<string>(assemblyCategories[0] || 'Office');
   const [quantityDialogOpen, setQuantityDialogOpen] = useState(false);
   const [selectedAssembly, setSelectedAssembly] = useState<Assembly | null>(null);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState<number | string>(1);
 
   const handleSelectClick = (assembly: Assembly) => {
     // Special handling for dynamic common area - add directly without quantity dialog
@@ -47,7 +47,8 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
 
   const handleConfirmQuantity = () => {
     if (selectedAssembly) {
-      onSelectAssembly(selectedAssembly, quantity);
+      const qty = typeof quantity === 'string' ? parseInt(quantity) : quantity;
+      onSelectAssembly(selectedAssembly, qty);
       setQuantityDialogOpen(false);
       setOpen(false);
       setSelectedAssembly(null);
@@ -67,7 +68,7 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
     return tier ? tier.discountPercent : 0;
   };
 
-  const currentDiscount = selectedAssembly ? getDiscountForQuantity(selectedAssembly, quantity) : 0;
+  const currentDiscount = selectedAssembly ? getDiscountForQuantity(selectedAssembly, typeof quantity === 'string' ? parseInt(quantity) || 0 : quantity) : 0;
 
   const filteredAssemblies = assemblies.filter(a => a.category === selectedCategory);
 
@@ -121,13 +122,13 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
   // Recalculate categories to include "Common Area" if it exists
   const allCategories = Array.from(new Set(allAssemblies.map(a => a.category)));
   
-  // Sort categories to put "Common Area" first, then keep the rest in their original order
+  // Sort categories: Office, Restrooms, Breakroom, Reception Area, then Common Area last
   const sortedCategories = allCategories.sort((a, b) => {
-    if (a === 'Common Area') return -1; // Common Area goes first
-    if (b === 'Common Area') return 1;  // Common Area goes first
-    // Keep original order for others (Office, Breakroom, Single Occ Restroom)
-    const originalOrder = ['Office', 'Breakroom', 'Single Occ Restroom'];
-    return originalOrder.indexOf(a) - originalOrder.indexOf(b);
+    if (a === 'Common Area') return 1;  // Common Area goes last
+    if (b === 'Common Area') return -1; // Common Area goes last
+    // Define the desired order for other categories
+    const desiredOrder = ['Office', 'Restrooms', 'Breakroom', 'Reception Area'];
+    return desiredOrder.indexOf(a) - desiredOrder.indexOf(b);
   });
 
   return (
@@ -240,8 +241,20 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
                 min="1"
                 step="1"
                 value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Allow empty string or valid positive numbers
+                  if (value === '') {
+                    setQuantity('');
+                  } else {
+                    const parsed = parseInt(value);
+                    if (!isNaN(parsed)) {
+                      setQuantity(parsed);
+                    }
+                  }
+                }}
                 className="mt-1"
+                placeholder="Enter quantity"
               />
             </div>
 
@@ -263,6 +276,7 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
             <Button
               className="flex-1"
               onClick={handleConfirmQuantity}
+              disabled={quantity === '' || (typeof quantity === 'number' && quantity <= 0) || (typeof quantity === 'string' && parseInt(quantity) <= 0)}
             >
               Add to Budget
             </Button>
