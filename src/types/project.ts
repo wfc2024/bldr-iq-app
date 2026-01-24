@@ -10,6 +10,7 @@ export interface LineItem {
   customScopeName?: string;
   isAssembly?: boolean; // Flag for assembly package line items
   assemblyName?: string; // Track which assembly this belongs to for cost breakdown grouping
+  assemblyCategory?: string; // Track assembly category (Office, Restroom, etc.) for pie chart grouping
   isDynamicCommonArea?: boolean; // Flag for the auto-updating common area assembly
   assemblySqft?: number; // Square footage footprint of the assembly (for common area calculations)
   // GC-specific cost breakdown
