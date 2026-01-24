@@ -20,17 +20,43 @@ const COLORS = [
 
 /**
  * Calculate cost breakdown by category from line items
+ * Assemblies are grouped by assembly category (Office, Restroom, etc.), while regular items are grouped by scope category
  * @param lineItems - Array of line items
  * @returns Array of category breakdowns with totals and colors
  */
 export function calculateCategoryBreakdown(lineItems: LineItem[]): CategoryBreakdown[] {
   if (lineItems.length === 0) return [];
 
-  // Calculate totals for predefined categories
-  const categoryTotals = categories.map((category, index) => {
+  const breakdowns: CategoryBreakdown[] = [];
+  let colorIndex = 0;
+
+  // First, group assembly items by assembly category (not assembly name)
+  const assemblyGroups = new Map<string, number>();
+  lineItems.forEach(item => {
+    if (item.isAssembly && item.assemblyCategory) {
+      const currentTotal = assemblyGroups.get(item.assemblyCategory) || 0;
+      assemblyGroups.set(item.assemblyCategory, currentTotal + item.total);
+    }
+  });
+
+  // Add assembly groups to breakdowns
+  assemblyGroups.forEach((total, assemblyCategory) => {
+    breakdowns.push({
+      name: assemblyCategory,
+      value: total,
+      color: COLORS[colorIndex % COLORS.length],
+    });
+    colorIndex++;
+  });
+
+  // Calculate totals for predefined categories (non-assembly items)
+  const categoryTotals = categories.map((category) => {
     const total = lineItems
       .filter(item => {
-        // Skip custom items
+        // Skip assembly items (already counted above)
+        if (item.isAssembly) return false;
+        
+        // Skip custom items (handled separately below)
         if (item.isCustom) return false;
         
         // Find the group for this scope
@@ -44,23 +70,27 @@ export function calculateCategoryBreakdown(lineItems: LineItem[]): CategoryBreak
     return {
       name: category,
       value: total,
-      color: COLORS[index % COLORS.length],
+      color: COLORS[colorIndex % COLORS.length],
     };
   }).filter(cat => cat.value > 0);
 
-  // Calculate total for custom items
+  // Increment color index for each non-zero category
+  categoryTotals.forEach(() => colorIndex++);
+  breakdowns.push(...categoryTotals);
+
+  // Calculate total for custom items (non-assembly)
   const customTotal = lineItems
-    .filter(item => item.isCustom)
+    .filter(item => item.isCustom && !item.isAssembly)
     .reduce((sum, item) => sum + item.total, 0);
 
   // Add custom items category if there are any
   if (customTotal > 0) {
-    categoryTotals.push({
+    breakdowns.push({
       name: "Custom Items",
       value: customTotal,
-      color: "#F7931E", // Orange brand color for custom items
+      color: COLORS[colorIndex % COLORS.length],
     });
   }
 
-  return categoryTotals;
+  return breakdowns;
 }
