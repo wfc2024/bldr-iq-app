@@ -401,6 +401,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
       notes: detailedNotes,
       isAssembly: true, // Flag to identify assembly line items
       assemblyName: assembly.name, // Track assembly name for cost breakdown
+      assemblyCategory: assembly.category, // Track category for pie chart grouping
       isDynamicCommonArea: isDynamicCommonArea, // Flag for auto-updating common area
       assemblySqft: assembly.squareFeet, // Store the assembly footprint for calculations
     };
