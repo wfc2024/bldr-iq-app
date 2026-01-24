@@ -70,6 +70,12 @@ export interface ProjectTemplate {
 
 export const projectTemplates: ProjectTemplate[] = [
   {
+    name: "Conceptual BLD w/ Pre-Packaged Assemblies",
+    description: "Quick conceptual budget using pre-built assembly packages for offices, restrooms, breakrooms, and reception areas",
+    defaultGCMarkup: 15,
+    lineItems: []
+  },
+  {
     name: "Office Renovation",
     description: "Basic office refresh with new flooring, paint, and minor updates",
     defaultGCMarkup: 15,
