@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { FileText } from "lucide-react";
+import { FileText, Package } from "lucide-react";
 import { projectTemplates, ProjectTemplate } from "../data/helpText";
 
 interface TemplateSelectorProps {
@@ -19,27 +19,56 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tutorial="template-cards">
-        {projectTemplates.map((template) => (
-          <Card key={template.name} className="hover:border-primary transition-colors cursor-pointer" onClick={() => onSelectTemplate(template)}>
-            <CardHeader>
-              <div className="flex items-start gap-3">
-                <FileText className="size-5 text-primary mt-1 flex-shrink-0" />
-                <div className="flex-1">
-                  <CardTitle className="text-base md:text-lg">{template.name}</CardTitle>
-                  <CardDescription className="text-sm mt-1">{template.description}</CardDescription>
+        {projectTemplates.map((template, index) => {
+          const isAssemblyTemplate = index === 0; // First template is the assembly-focused one
+          return (
+            <Card 
+              key={template.name} 
+              className={`hover:border-primary transition-colors cursor-pointer ${
+                isAssemblyTemplate ? 'border-[#F7931E] bg-orange-50/30 dark:bg-orange-950/20' : ''
+              }`}
+              onClick={() => onSelectTemplate(template)}
+            >
+              <CardHeader>
+                <div className="flex items-start gap-3">
+                  {isAssemblyTemplate ? (
+                    <Package className="size-5 text-[#F7931E] mt-1 flex-shrink-0" />
+                  ) : (
+                    <FileText className="size-5 text-primary mt-1 flex-shrink-0" />
+                  )}
+                  <div className="flex-1">
+                    <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                      {template.name}
+                      {isAssemblyTemplate && (
+                        <span className="text-xs font-normal bg-[#F7931E] text-white px-2 py-0.5 rounded">
+                          RECOMMENDED
+                        </span>
+                      )}
+                    </CardTitle>
+                    <CardDescription className="text-sm mt-1">{template.description}</CardDescription>
+                    {isAssemblyTemplate && (
+                      <p className="text-xs text-[#F7931E] dark:text-orange-400 mt-2 font-medium">
+                        💡 Use "Add Package" button to quickly add offices, restrooms, breakrooms, and reception areas
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Button variant="outline" className="w-full" onClick={(e) => {
-                e.stopPropagation();
-                onSelectTemplate(template);
-              }}>
-                Use This Template
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  variant={isAssemblyTemplate ? "default" : "outline"} 
+                  className={`w-full ${isAssemblyTemplate ? 'bg-[#F7931E] hover:bg-[#e8851a] border-[#F7931E]' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelectTemplate(template);
+                  }}
+                >
+                  Use This Template
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <Card className="border-dashed" data-tutorial="start-from-scratch">
