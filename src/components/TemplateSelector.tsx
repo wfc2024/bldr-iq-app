@@ -54,7 +54,7 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
               <CardContent>
                 <Button 
                   variant={isAssemblyTemplate ? "default" : "outline"} 
-                  className={`w-full ${isAssemblyTemplate ? 'bg-[#F7931E] hover:bg-[#e8851a] border-[#F7931E]' : ''}`}
+                  className={`w-full ${isAssemblyTemplate ? '!bg-[#F7931E] hover:!bg-[#e8851a] !border-[#F7931E] !text-white' : ''}`}
                   onClick={() => onSelectTemplate(template)}
                 >
                   Use This Template
