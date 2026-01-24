@@ -18,15 +18,13 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tutorial="template-cards">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-fr" data-tutorial="template-cards">
         {projectTemplates.map((template, index) => {
           const isAssemblyTemplate = index === 0; // First template is the assembly-focused one
           return (
             <Card 
               key={template.name} 
-              className={`hover:border-primary transition-colors ${
-                isAssemblyTemplate ? 'border-[#F7931E] bg-orange-50/30 dark:bg-orange-950/20' : ''
-              }`}
+              className={`flex flex-col hover:border-primary transition-colors ${isAssemblyTemplate ? 'border-[#F7931E] bg-orange-50/30 dark:bg-orange-950/20' : ''}`}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start gap-3">
@@ -45,17 +43,15 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
                       )}
                     </CardTitle>
                     <CardDescription className="text-sm mt-1">{template.description}</CardDescription>
+                    {isAssemblyTemplate && (
+                      <p className="text-xs text-[#F7931E] dark:text-orange-400 font-medium mt-2">
+                        💡 Use "Add Package" button to quickly add offices, restrooms, breakrooms, and reception areas
+                      </p>
+                    )}
                   </div>
                 </div>
               </CardHeader>
-              {isAssemblyTemplate && (
-                <div className="px-6 pb-3">
-                  <p className="text-xs text-[#F7931E] dark:text-orange-400 font-medium">
-                    💡 Use "Add Package" button to quickly add offices, restrooms, breakrooms, and reception areas
-                  </p>
-                </div>
-              )}
-              <CardContent className="pt-0">
+              <CardContent className="pt-0 mt-auto">
                 <Button 
                   variant={isAssemblyTemplate ? "default" : "outline"} 
                   className={`w-full ${isAssemblyTemplate ? 'bg-[#F7931E] hover:bg-[#e8851a] border-[#F7931E]' : ''}`}
