@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Textarea } from "./ui/textarea";
 import { Alert, AlertDescription } from "./ui/alert";
-import { Trash2, Plus, AlertCircle, Copy, FileDown, Package } from "lucide-react";
+import { Trash2, Plus, AlertCircle, Copy, FileDown, Package, ArrowLeft } from "lucide-react";
 import { scopeOfWorkData, categories } from "../data/scopeOfWork";
 import { LineItem, Project } from "../types/project";
 import { toast } from "sonner@2.0.3";
@@ -318,6 +318,11 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
 
   const handleStartFromScratch = () => {
     setShowTemplateSelector(false);
+  };
+
+  const handleBackToTemplates = () => {
+    setShowTemplateSelector(true);
+    toast.info('Returned to template selection');
   };
 
   const handleSelectAssembly = (assembly: Assembly, quantity: number = 1) => {
@@ -697,8 +702,20 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
           )}
           
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBackToTemplates}
+                  className="h-8"
+                >
+                  <ArrowLeft className="size-4 mr-2" />
+                  Back to Templates
+                </Button>
+              </div>
               <CardTitle className="text-lg md:text-xl">Project Details</CardTitle>
+              <div className="w-[140px]"></div> {/* Spacer for alignment */}
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-tutorial="project-details">
@@ -734,7 +751,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                     id="generalConditions"
                     type="number"
                     min="0"
-                    step="0.01"
+                    step="0.5"
                     data-tutorial="gc-controls"
                     value={generalConditions}
                     onChange={(e) => setGeneralConditions(e.target.value)}
@@ -753,7 +770,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                     id="gcMarkup"
                     type="number"
                     min="0"
-                    step="0.01"
+                    step="0.5"
                     value={gcMarkup}
                     onChange={(e) => setGcMarkup(e.target.value)}
                     placeholder="Enter markup percentage"
