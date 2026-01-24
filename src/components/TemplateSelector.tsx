@@ -24,10 +24,9 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
           return (
             <Card 
               key={template.name} 
-              className={`hover:border-primary transition-colors cursor-pointer ${
+              className={`hover:border-primary transition-colors ${
                 isAssemblyTemplate ? 'border-[#F7931E] bg-orange-50/30 dark:bg-orange-950/20' : ''
               }`}
-              onClick={() => onSelectTemplate(template)}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start gap-3">
@@ -48,20 +47,19 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
                     <CardDescription className="text-sm mt-1">{template.description}</CardDescription>
                   </div>
                 </div>
-                {isAssemblyTemplate && (
-                  <p className="text-xs text-[#F7931E] dark:text-orange-400 mt-3 font-medium">
+              </CardHeader>
+              {isAssemblyTemplate && (
+                <div className="px-6 pb-3">
+                  <p className="text-xs text-[#F7931E] dark:text-orange-400 font-medium">
                     💡 Use "Add Package" button to quickly add offices, restrooms, breakrooms, and reception areas
                   </p>
-                )}
-              </CardHeader>
+                </div>
+              )}
               <CardContent className="pt-0">
                 <Button 
                   variant={isAssemblyTemplate ? "default" : "outline"} 
                   className={`w-full ${isAssemblyTemplate ? 'bg-[#F7931E] hover:bg-[#e8851a] border-[#F7931E]' : ''}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSelectTemplate(template);
-                  }}
+                  onClick={() => onSelectTemplate(template)}
                 >
                   Use This Template
                 </Button>
