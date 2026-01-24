@@ -20,7 +20,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { formatCurrency } from "../utils/formatCurrency";
 import { calculateCategoryBreakdown } from "../utils/categoryBreakdown";
 import { downloadPDF } from "../utils/pdfExport";
-import { Assembly, createCommonAreaAssembly } from "../data/assemblies";
+import { Assembly, createCommonAreaAssembly, assemblies } from "../data/assemblies";
 import {
   Collapsible,
   CollapsibleContent,
@@ -52,6 +52,114 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
   
   // Track the serialized state of assemblies to detect real changes
   const lastAssembliesState = useRef<string>('');
+  
+  // Track the last state of assembly multipliers to prevent infinite loops
+  const lastMultiplierState = useRef<string>('');
+
+  // Dynamically recalculate assemblies with conditional baseline multipliers
+  useEffect(() => {
+    console.log('🔄 Assembly multiplier useEffect triggered');
+    
+    // Get all assembly line items with conditional baseline multipliers
+    const conditionalAssemblies = lineItems.filter(item => 
+      item.isAssembly && 
+      !item.isDynamicCommonArea &&
+      // Check if the original assembly definition has conditional multiplier
+      assemblies.find(a => a.name === item.assemblyName)?.hasConditionalBaselineMultiplier
+    );
+    
+    if (conditionalAssemblies.length === 0) {
+      console.log('❌ No conditional assemblies found');
+      lastMultiplierState.current = '';
+      return;
+    }
+    
+    // Count unique assembly types (excluding common area)
+    const assemblyTypes = new Set(
+      lineItems
+        .filter(item => item.isAssembly && !item.isDynamicCommonArea)
+        .map(item => item.assemblyName)
+    );
+    
+    const assemblyTypeCount = assemblyTypes.size;
+    console.log(`📊 Assembly types count: ${assemblyTypeCount}, Types: ${Array.from(assemblyTypes).join(', ')}`);
+    
+    // Create a snapshot of the current state
+    const currentState = `${Array.from(assemblyTypes).sort().join('|')}:${conditionalAssemblies.map(a => a.id).join(',')}`;
+    
+    if (currentState === lastMultiplierState.current) {
+      console.log('⏭️ Skipping - multiplier state unchanged');
+      return;
+    }
+    
+    console.log('🆕 Multiplier state changed, recalculating...');
+    lastMultiplierState.current = currentState;
+    
+    // Update each conditional assembly
+    setLineItems(prev => {
+      return prev.map(item => {
+        // Only process assemblies with conditional baseline multipliers
+        const assemblyDef = assemblies.find(a => a.name === item.assemblyName);
+        if (!item.isAssembly || item.isDynamicCommonArea || !assemblyDef?.hasConditionalBaselineMultiplier) {
+          return item;
+        }
+        
+        // Recalculate base cost from assembly definition
+        let assemblyUnitCost = 0;
+        assemblyDef.items.forEach(assemblyItem => {
+          const scope = scopeOfWorkData.find(s => s.name === assemblyItem.scopeName);
+          if (scope) {
+            assemblyUnitCost += assemblyItem.quantity * scope.defaultUnitCost;
+          }
+        });
+        
+        // Determine if multiplier should apply
+        let discountPercent = 0;
+        if (assemblyDef.scaleDiscounts && assemblyDef.scaleDiscounts.length > 0) {
+          const tier = assemblyDef.scaleDiscounts.find(
+            discount => item.quantity >= discount.minQty && item.quantity <= discount.maxQty
+          );
+          
+          if (tier && tier.discountPercent < 0) {
+            const baselineMultiplier = tier.discountPercent; // e.g., -20 for 1.2x
+            
+            // Apply tiered multiplier based on number of assembly types
+            if (assemblyTypeCount === 1) {
+              // Single assembly type: Full multiplier
+              discountPercent = baselineMultiplier;
+              console.log(`  🔧 ${item.assemblyName}: Full multiplier ${discountPercent}% (1 assembly type)`);
+            } else if (assemblyTypeCount === 2) {
+              // Two assembly types: Half multiplier
+              discountPercent = baselineMultiplier / 2;
+              console.log(`  🔧 ${item.assemblyName}: Half multiplier ${discountPercent}% (2 assembly types)`);
+            } else {
+              // Three or more assembly types: No multiplier
+              discountPercent = 0;
+              console.log(`  🔧 ${item.assemblyName}: No multiplier (${assemblyTypeCount} assembly types)`);
+            }
+          }
+        }
+        
+        // Apply discount/multiplier
+        const discountMultiplier = 1 - (discountPercent / 100);
+        const finalUnitCost = assemblyUnitCost * discountMultiplier;
+        const newTotal = item.quantity * finalUnitCost;
+        
+        // Only update if the cost actually changed
+        if (Math.abs(item.unitCost - finalUnitCost) > 0.01 || Math.abs(item.total - newTotal) > 0.01) {
+          console.log(`  ✅ Updated ${item.assemblyName}: $${item.unitCost.toFixed(2)} → $${finalUnitCost.toFixed(2)}`);
+          return {
+            ...item,
+            unitCost: finalUnitCost,
+            total: newTotal,
+          };
+        }
+        
+        return item;
+      });
+    });
+    
+  }, [lineItems]); // Re-run when line items change
 
   // Automatically update dynamic common area assembly when line items or total sqft changes
   useEffect(() => {
@@ -223,13 +331,42 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
       }
     });
 
+    // Count existing assembly types (excluding common area)
+    const existingAssemblyTypes = new Set(
+      lineItems
+        .filter(item => item.isAssembly && !item.isDynamicCommonArea)
+        .map(item => item.assemblyName)
+    );
+    
+    // Calculate how many types there will be after adding this assembly
+    let futureAssemblyTypeCount = existingAssemblyTypes.size;
+    if (!existingAssemblyTypes.has(assembly.name) && !assembly.id.includes('common-area')) {
+      futureAssemblyTypeCount += 1; // This will be a new type
+    }
+
     // Calculate discount if applicable
     let discountPercent = 0;
     if (assembly.scaleDiscounts && assembly.scaleDiscounts.length > 0) {
       const tier = assembly.scaleDiscounts.find(
         discount => quantity >= discount.minQty && quantity <= discount.maxQty
       );
-      if (tier) {
+      
+      if (tier && tier.discountPercent < 0 && assembly.hasConditionalBaselineMultiplier) {
+        const baselineMultiplier = tier.discountPercent; // e.g., -20 for 1.2x
+        
+        // Apply tiered multiplier based on number of assembly types (including this new one)
+        if (futureAssemblyTypeCount === 1) {
+          // Single assembly type: Full multiplier
+          discountPercent = baselineMultiplier;
+        } else if (futureAssemblyTypeCount === 2) {
+          // Two assembly types: Half multiplier
+          discountPercent = baselineMultiplier / 2;
+        } else {
+          // Three or more assembly types: No multiplier
+          discountPercent = 0;
+        }
+      } else if (tier && !assembly.hasConditionalBaselineMultiplier) {
+        // For assemblies without conditional multipliers, apply the discount normally
         discountPercent = tier.discountPercent;
       }
     }
@@ -459,16 +596,16 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
       toast.error("Please enter a project name");
       return;
     }
-    if (!address.trim()) {
-      toast.error("Please enter a project address");
-      return;
-    }
-    if (!gcMarkup || parseFloat(gcMarkup) < 0) {
-      toast.error("Please enter a valid GC markup percentage");
+    if (!totalSqft || parseFloat(totalSqft) <= 0) {
+      toast.error("Please enter a valid project square footage");
       return;
     }
     if (!generalConditions || parseFloat(generalConditions) < 0) {
       toast.error("Please enter a valid General Conditions percentage");
+      return;
+    }
+    if (!gcMarkup || parseFloat(gcMarkup) < 0) {
+      toast.error("Please enter a valid GC markup percentage");
       return;
     }
     if (lineItems.length === 0) {
@@ -566,18 +703,31 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-tutorial="project-details">
                 <div className="space-y-2">
-                  <Label htmlFor="projectName">Project Name</Label>
+                  <Label htmlFor="projectName">Project Name *</Label>
                   <Input
                     id="projectName"
                     data-tutorial="project-name"
                     value={projectName}
                     onChange={(e) => setProjectName(e.target.value)}
                     placeholder="Enter project name"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="totalSqft">Total Square Footage *</Label>
+                  <Input
+                    id="totalSqft"
+                    type="number"
+                    min="0"
+                    value={totalSqft}
+                    onChange={(e) => setTotalSqft(e.target.value)}
+                    placeholder="Enter total sqft"
+                    required
                   />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center">
-                    <Label htmlFor="generalConditions">General Conditions (%)</Label>
+                    <Label htmlFor="generalConditions">General Conditions (%) *</Label>
                     <HelpTooltip content={helpText.generalConditions} />
                   </div>
                   <Input
@@ -589,11 +739,14 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                     value={generalConditions}
                     onChange={(e) => setGeneralConditions(e.target.value)}
                     placeholder="Enter general conditions %"
+                    required
                   />
                 </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center">
-                    <Label htmlFor="gcMarkup">GC Markup (%)</Label>
+                    <Label htmlFor="gcMarkup">GC Markup (%) *</Label>
                     <HelpTooltip content={helpText.gcMarkup} />
                   </div>
                   <Input
@@ -604,12 +757,11 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                     value={gcMarkup}
                     onChange={(e) => setGcMarkup(e.target.value)}
                     placeholder="Enter markup percentage"
+                    required
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
+                  <Label htmlFor="address">Address (Optional)</Label>
                   <Input
                     id="address"
                     value={address}
@@ -646,26 +798,15 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="totalSqft">Total Square Footage (Optional)</Label>
-                  <Input
-                    id="totalSqft"
-                    type="number"
-                    min="0"
-                    value={totalSqft}
-                    onChange={(e) => setTotalSqft(e.target.value)}
-                    placeholder="Enter total sqft for benchmark comparison"
+                  <Label htmlFor="projectNotes">Project Notes</Label>
+                  <Textarea
+                    id="projectNotes"
+                    value={projectNotes}
+                    onChange={(e) => setProjectNotes(e.target.value)}
+                    placeholder="Enter any notes about this project"
+                    rows={3}
                   />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="projectNotes">Project Notes</Label>
-                <Textarea
-                  id="projectNotes"
-                  value={projectNotes}
-                  onChange={(e) => setProjectNotes(e.target.value)}
-                  placeholder="Enter any notes about this project"
-                  rows={3}
-                />
               </div>
             </CardContent>
           </Card>
