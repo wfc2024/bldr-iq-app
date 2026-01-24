@@ -29,7 +29,7 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
               }`}
               onClick={() => onSelectTemplate(template)}
             >
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <div className="flex items-start gap-3">
                   {isAssemblyTemplate ? (
                     <Package className="size-5 text-[#F7931E] mt-1 flex-shrink-0" />
@@ -54,7 +54,7 @@ export function TemplateSelector({ onSelectTemplate, onStartFromScratch }: Templ
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <Button 
                   variant={isAssemblyTemplate ? "default" : "outline"} 
                   className={`w-full ${isAssemblyTemplate ? 'bg-[#F7931E] hover:bg-[#e8851a] border-[#F7931E]' : ''}`}
