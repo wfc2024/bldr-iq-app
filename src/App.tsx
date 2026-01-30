@@ -242,7 +242,13 @@ export default function App() {
               <div className="flex items-center gap-3 md:gap-4">
                 <img src={bldriqLogo} alt="BLDR IQ" className="h-8 md:h-10" />
                 <div>
-                  <h1 className="text-xl md:text-2xl">Budget Builder</h1>
+                  <h1 
+                    className="text-xl md:text-2xl cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => setActiveTab("budget-builder")}
+                    title="Go to Budget Builder"
+                  >
+                    Budget Builder
+                  </h1>
                 </div>
               </div>
               <UserMenu />
