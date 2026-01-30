@@ -52,4 +52,7 @@ export interface Project {
   bondInsurancePercentage?: number;
   salesTaxPercentage?: number;
   contingencyPercentage?: number;
+  // Conceptual template specific
+  scopeGapBufferPercentage?: number; // 5, 10, 15, or 20 - only for Conceptual BLD template
+  templateType?: string; // Track which template was used to enable template-specific features
 }
