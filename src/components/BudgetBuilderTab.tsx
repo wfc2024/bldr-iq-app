@@ -14,6 +14,7 @@ import { HelpTooltip } from "./HelpTooltip";
 import { TemplateSelector } from "./TemplateSelector";
 import { BudgetSummaryChart } from "./BudgetSummaryChart";
 import { AssemblySelector } from "./AssemblySelector";
+import { QuantityCalculator } from "./QuantityCalculator";
 import { helpText, benchmarkData, ProjectTemplate } from "../data/helpText";
 import { dataService } from "../services/dataService";
 import { useAuth } from "../contexts/AuthContext";
@@ -1013,16 +1014,24 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                                   ) : null;
                                 })()}
                               </div>
-                              <Input
-                                type="number"
-                                min="0"
-                                step="1"
-                                value={item.quantity || ""}
-                                onChange={(e) => updateLineItemQuantity(item.id, parseFloat(e.target.value) || 0)}
-                                placeholder="0"
-                                className="text-sm"
-                                disabled={item.isCustom}
-                              />
+                              <div className="flex items-center gap-1">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="1"
+                                  value={item.quantity || ""}
+                                  onChange={(e) => updateLineItemQuantity(item.id, parseFloat(e.target.value) || 0)}
+                                  placeholder="0"
+                                  className="text-sm"
+                                  disabled={item.isCustom}
+                                />
+                                {!item.isCustom && (
+                                  <QuantityCalculator
+                                    onUseQuantity={(quantity) => updateLineItemQuantity(item.id, quantity)}
+                                    currentQuantity={item.quantity}
+                                  />
+                                )}
+                              </div>
                             </div>
                             
                             <div className="space-y-2">
