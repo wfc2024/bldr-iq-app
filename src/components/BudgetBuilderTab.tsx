@@ -46,6 +46,8 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [totalSqft, setTotalSqft] = useState("");
   const [showNotIncluded, setShowNotIncluded] = useState(false);
+  const [scopeGapBuffer, setScopeGapBuffer] = useState<number>(10); // Default 10%
+  const [templateType, setTemplateType] = useState<string>(""); // Track which template was used
   
   // Use a ref to track the last calculated common area sqft (prevents infinite loop)
   const lastCommonAreaSqft = useRef<number | null>(null);
@@ -312,6 +314,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
     
     setLineItems(templateLineItems);
     setShowTemplateSelector(false);
+    setTemplateType(template.name);
     
     toast.success("Template loaded! Customize it to fit your needs.");
   };
@@ -576,24 +579,36 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
     return lineItems.reduce((sum, item) => sum + item.total, 0);
   };
 
+  const calculateScopeGapBuffer = () => {
+    // Only apply for Conceptual template
+    if (templateType !== "Conceptual BLD w/ Pre-Packaged Assemblies") {
+      return 0;
+    }
+    const subtotal = calculateSubtotal();
+    return subtotal * (scopeGapBuffer / 100);
+  };
+
   const calculateGeneralConditions = () => {
     const subtotal = calculateSubtotal();
+    const buffer = calculateScopeGapBuffer();
     const gcPct = parseFloat(generalConditions) || 0;
-    return subtotal * (gcPct / 100);
+    return (subtotal + buffer) * (gcPct / 100);
   };
 
   const calculateGCMarkup = () => {
     const subtotal = calculateSubtotal();
+    const buffer = calculateScopeGapBuffer();
     const gcConditions = calculateGeneralConditions();
     const markup = parseFloat(gcMarkup) || 0;
-    return (subtotal + gcConditions) * (markup / 100);
+    return (subtotal + buffer + gcConditions) * (markup / 100);
   };
 
   const calculateGrandTotal = () => {
     const subtotal = calculateSubtotal();
+    const buffer = calculateScopeGapBuffer();
     const gcConditions = calculateGeneralConditions();
     const markup = calculateGCMarkup();
-    return subtotal + gcConditions + markup;
+    return subtotal + buffer + gcConditions + markup;
   };
 
   const handleSaveProject = async () => {
@@ -1173,6 +1188,39 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                       <span className="flex-shrink-0">Subtotal:</span>
                       <span className="font-mono text-right break-all">{formatCurrency(calculateSubtotal())}</span>
                     </div>
+                    
+                    {/* Scope Gap Buffer - Only for Conceptual Template */}
+                    {templateType === "Conceptual BLD w/ Pre-Packaged Assemblies" && (
+                      <div className="border-l-2 border-blue-500 pl-4 py-2 bg-blue-50/50 dark:bg-blue-950/20">
+                        <div className="flex justify-between items-center gap-4 mb-2">
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span>Scope Gap Buffer:</span>
+                            <HelpTooltip content="This buffer accounts for scope items commonly missed in conceptual assemblies, including electrical work triggered by layout changes, HVAC adjustments, patching/finishing, blocking for fixtures, and unforeseen site conditions. Standard practice for preliminary budgets." />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Select
+                              value={scopeGapBuffer.toString()}
+                              onValueChange={(value) => setScopeGapBuffer(parseInt(value))}
+                            >
+                              <SelectTrigger className="w-[100px] h-8">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="5">5%</SelectItem>
+                                <SelectItem value="10">10%</SelectItem>
+                                <SelectItem value="15">15%</SelectItem>
+                                <SelectItem value="20">20%</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <span className="font-mono text-right">{formatCurrency(calculateScopeGapBuffer())}</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground italic">
+                          Adjustable based on project complexity and stage
+                        </p>
+                      </div>
+                    )}
+                    
                     <div className="flex justify-between items-center gap-4">
                       <span className="flex-shrink-0">General Conditions ({generalConditions || 0}%):</span>
                       <span className="font-mono text-right break-all">{formatCurrency(calculateGeneralConditions())}</span>
