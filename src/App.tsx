@@ -44,24 +44,24 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
       </div>
 
       {/* Hero Section */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 md:py-24">
-        <div className="text-center space-y-8">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl leading-tight" style={{ fontWeight: 700, color: '#1B2D4F' }}>
+      <div className="max-w-5xl mx-auto px-6 sm:px-8 py-20 md:py-32">
+        <div className="text-center space-y-10">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl leading-tight px-4" style={{ fontWeight: 700, color: '#1B2D4F' }}>
             Construction Budgeting
             <br />
             Made Simple
           </h2>
           
-          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl sm:text-2xl md:text-3xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
             Create preliminary construction budgets without using up contractors' billable time. 
             Built specifically for non-construction professionals.
           </p>
 
-          <div className="pt-8">
+          <div className="pt-10">
             <Button 
               size="lg" 
               onClick={onShowAuth}
-              className="text-base sm:text-lg px-8 sm:px-10 py-6 sm:py-7"
+              className="text-lg sm:text-xl px-10 sm:px-12 py-7 sm:py-8"
               style={{ backgroundColor: '#1B2D4F' }}
             >
               Get Started - Sign In or Sign Up
@@ -69,30 +69,30 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
           </div>
 
           {/* Features */}
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 pt-16 text-left">
-            <div className="p-6 md:p-8 rounded-lg border bg-card">
-              <h3 className="text-lg md:text-xl mb-3" style={{ fontWeight: 600, color: '#1B2D4F' }}>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10 pt-20 text-left px-4">
+            <div className="p-8 md:p-10 rounded-lg border bg-card">
+              <h3 className="text-xl md:text-2xl mb-4" style={{ fontWeight: 600, color: '#1B2D4F' }}>
                 Pre-Built Templates
               </h3>
-              <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                 Choose from office, retail, or restaurant templates with common scopes of work already included.
               </p>
             </div>
 
-            <div className="p-6 md:p-8 rounded-lg border bg-card">
-              <h3 className="text-lg md:text-xl mb-3" style={{ fontWeight: 600, color: '#1B2D4F' }}>
+            <div className="p-8 md:p-10 rounded-lg border bg-card">
+              <h3 className="text-xl md:text-2xl mb-4" style={{ fontWeight: 600, color: '#1B2D4F' }}>
                 Dropdown Selections
               </h3>
-              <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                 Minimal manual input required. Select from 69 construction line items organized into 14 categories.
               </p>
             </div>
 
-            <div className="p-6 md:p-8 rounded-lg border bg-card sm:col-span-2 md:col-span-1">
-              <h3 className="text-lg md:text-xl mb-3" style={{ fontWeight: 600, color: '#1B2D4F' }}>
+            <div className="p-8 md:p-10 rounded-lg border bg-card sm:col-span-2 md:col-span-1">
+              <h3 className="text-xl md:text-2xl mb-4" style={{ fontWeight: 600, color: '#1B2D4F' }}>
                 Professional Reports
               </h3>
-              <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                 Export detailed budgets to PDF with cost breakdowns, charts, and benchmark comparisons.
               </p>
             </div>
@@ -423,8 +423,15 @@ function AppContent() {
       <>
         <LandingPage onShowAuth={() => setShowAuthModal(true)} />
         {showAuthModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 sm:p-6 lg:p-8">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-[90%] sm:max-w-md mx-auto" style={{ maxWidth: '448px' }}>
+          <div 
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 sm:p-6 lg:p-8"
+            onClick={() => setShowAuthModal(false)}
+          >
+            <div 
+              className="bg-white rounded-lg shadow-xl w-full max-w-[90%] sm:max-w-md mx-auto" 
+              style={{ maxWidth: '448px' }}
+              onClick={(e) => e.stopPropagation()}
+            >
               {/* Close button */}
               <div className="flex justify-end p-2">
                 <button
