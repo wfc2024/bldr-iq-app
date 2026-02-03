@@ -5,14 +5,106 @@ import { ProjectsTab } from "./components/ProjectsTab";
 import { HelpTab } from "./components/HelpTab";
 import { GettingStartedModal } from "./components/GettingStartedModal";
 import { Toaster } from "./components/ui/sonner";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { UserMenu } from "./components/UserMenu";
+import { AuthForm } from "./components/AuthModal";
 import { migrateProjectsData } from "./utils/dataMigration";
+import { registerServiceWorker, setupInstallPrompt } from "./utils/registerServiceWorker";
 import { AlertTriangle, FileWarning } from "lucide-react";
 import bldriqLogo from "figma:asset/a2929011f50be4b54dd5c1378acb40f8b0742766.png";
 import Joyride, { CallBackProps, STATUS, Step } from "react-joyride";
+import { Button } from "./components/ui/button";
 
-export default function App() {
+// Landing page shown to unauthenticated users
+function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Testing Banner */}
+      <div className="text-white py-2 px-4" style={{ backgroundColor: '#F7931E' }}>
+        <div className="max-w-6xl mx-auto flex items-center justify-center gap-2 text-sm md:text-base">
+          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+          <p className="text-center">
+            <strong>Preview version only.</strong> This tool is still in development and is not intended for active project budgeting.
+          </p>
+        </div>
+      </div>
+
+      {/* Header */}
+      <div className="border-b bg-white">
+        <div className="max-w-6xl mx-auto p-4 md:p-6">
+          <div className="flex items-center justify-between gap-3 md:gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
+              <img src={bldriqLogo} alt="BLDR IQ" className="h-8 md:h-10" />
+              <div>
+                <h1 className="text-xl md:text-2xl">Budget Builder</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Hero Section */}
+      <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
+        <div className="text-center space-y-6">
+          <h2 className="text-3xl md:text-5xl" style={{ fontWeight: 700, color: '#1B2D4F' }}>
+            Construction Budgeting
+            <br />
+            Made Simple
+          </h2>
+          
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            Create preliminary construction budgets without using up contractors' billable time. 
+            Built specifically for non-construction professionals.
+          </p>
+
+          <div className="pt-6">
+            <Button 
+              size="lg" 
+              onClick={onShowAuth}
+              className="text-lg px-8 py-6"
+              style={{ backgroundColor: '#1B2D4F' }}
+            >
+              Get Started - Sign In or Sign Up
+            </Button>
+          </div>
+
+          {/* Features */}
+          <div className="grid md:grid-cols-3 gap-6 pt-12 text-left">
+            <div className="p-6 rounded-lg border bg-card">
+              <h3 className="text-lg mb-2" style={{ fontWeight: 600, color: '#1B2D4F' }}>
+                Pre-Built Templates
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Choose from office, retail, or restaurant templates with common scopes of work already included.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-lg border bg-card">
+              <h3 className="text-lg mb-2" style={{ fontWeight: 600, color: '#1B2D4F' }}>
+                Dropdown Selections
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Minimal manual input required. Select from 69 construction line items organized into 14 categories.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-lg border bg-card">
+              <h3 className="text-lg mb-2" style={{ fontWeight: 600, color: '#1B2D4F' }}>
+                Professional Reports
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Export detailed budgets to PDF with cost breakdowns, charts, and benchmark comparisons.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main app content (only shown when authenticated)
+function AuthenticatedApp() {
   const [activeTab, setActiveTab] = useState("budget-builder");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [showTestingModal, setShowTestingModal] = useState(true);
@@ -21,6 +113,12 @@ export default function App() {
   const [resetBudgetBuilder, setResetBudgetBuilder] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [autoStartFromScratch, setAutoStartFromScratch] = useState(false);
+
+  // Register PWA service worker
+  useEffect(() => {
+    registerServiceWorker();
+    setupInstallPrompt();
+  }, []);
 
   // Check if user has seen the getting started modal
   useEffect(() => {
@@ -154,7 +252,7 @@ export default function App() {
   ];
 
   return (
-    <AuthProvider>
+    <>
       {/* Tutorial */}
       <Joyride
         steps={tutorialSteps}
@@ -298,6 +396,75 @@ export default function App() {
 
         <Toaster />
       </div>
+    </>
+  );
+}
+
+// Component that handles showing login or app based on auth state
+function AppContent() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Show loading while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: '#1B2D4F' }}></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated, show landing page
+  if (!isAuthenticated) {
+    return (
+      <>
+        <LandingPage onShowAuth={() => setShowAuthModal(true)} />
+        {showAuthModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+              {/* Close button */}
+              <div className="flex justify-end p-2">
+                <button
+                  onClick={() => setShowAuthModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Auth modal content */}
+              <div className="px-6 pb-6">
+                <h2 className="text-2xl mb-2" style={{ fontWeight: 600, color: '#1B2D4F' }}>
+                  Welcome to BLDR IQ
+                </h2>
+                <p className="text-muted-foreground mb-6">
+                  Sign in to save your projects and access them from anywhere
+                </p>
+                
+                {/* We'll use the existing AuthModal component's form here */}
+                <AuthForm />
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // If authenticated, show the full app
+  return <AuthenticatedApp />;
+}
+
+// Main App component
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }
