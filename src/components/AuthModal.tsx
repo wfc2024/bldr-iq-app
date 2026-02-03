@@ -74,14 +74,14 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
   };
 
   return (
-    <Tabs defaultValue="login" className="w-full">
+    <Tabs defaultValue="login" className="w-full max-w-md mx-auto">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="login">Login</TabsTrigger>
         <TabsTrigger value="signup">Sign Up</TabsTrigger>
       </TabsList>
 
       <TabsContent value="login">
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label htmlFor="login-email">Email</Label>
             <Input
@@ -115,7 +115,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
       </TabsContent>
 
       <TabsContent value="signup">
-        <form onSubmit={handleSignup} className="space-y-4">
+        <form onSubmit={handleSignup} className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label htmlFor="signup-name">Name</Label>
             <Input
