@@ -46,15 +46,12 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
       {/* Hero Section */}
       <div className="max-w-5xl mx-auto px-6 sm:px-8 py-24 md:py-40">
         <div className="text-center">
-          <h2 className="text-5xl sm:text-6xl md:text-7xl leading-tight px-4" style={{ fontWeight: 700, color: '#1B2D4F', marginBottom: '64px' }}>
-            Construction Budgeting
-            <br />
-            Made Simple
+          <h2 className="text-5xl sm:text-6xl md:text-7xl leading-tight px-4" style={{ fontWeight: 700, color: '#1B2D4F', marginBottom: '64px', lineHeight: '1.2' }}>
+            Construction Budgeting Made Simple
           </h2>
           
-          <p className="text-2xl sm:text-3xl md:text-4xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4" style={{ marginBottom: '64px' }}>
-            Create preliminary construction budgets without using up contractors' billable time. 
-            Built specifically for non-construction professionals.
+          <p className="text-xl sm:text-2xl md:text-3xl max-w-4xl mx-auto leading-relaxed px-4" style={{ marginBottom: '64px', color: '#6B7280', fontWeight: 400 }}>
+            Create preliminary construction budgets without using up contractors' billable time. Built specifically for non-construction professionals.
           </p>
 
           <div style={{ marginBottom: '96px' }}>
