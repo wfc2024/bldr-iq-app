@@ -52,11 +52,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('🚀 AuthContext: Starting login...');
       
-      // Just do the login - let onAuthStateChange handle the state update
-      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+      // Add timeout wrapper to detect hanging promises
+      const loginPromise = supabase.auth.signInWithPassword({
         email,
         password,
       });
+
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Login timeout after 10 seconds')), 10000);
+      });
+
+      console.log('🚀 Waiting for signInWithPassword (max 10s)...');
+      
+      const { data: authData, error: signInError } = await Promise.race([
+        loginPromise,
+        timeoutPromise
+      ]) as any;
 
       console.log('🚀 AuthContext: signInWithPassword response:', {
         hasUser: !!authData.user,
