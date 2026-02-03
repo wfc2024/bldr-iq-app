@@ -49,14 +49,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('🚀 AuthContext: Starting login...');
       const user = await authService.login(email, password);
+      console.log('🚀 AuthContext: Login successful, setting state:', user.email);
       setAuthState({
         user,
         isAuthenticated: true,
         isLoading: false,
       });
+      console.log('✅ AuthContext: State updated successfully');
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("❌ AuthContext: Login error:", error);
       throw error;
     }
   };
