@@ -52,44 +52,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('🚀 AuthContext: Starting login...');
       
-      // Add timeout wrapper to detect hanging promises
-      const loginPromise = supabase.auth.signInWithPassword({
+      // DON'T await - just fire it and let it persist in background
+      supabase.auth.signInWithPassword({
         email,
         password,
+      }).then(({ data, error }) => {
+        if (error) {
+          console.error('❌ Background login error:', error);
+        } else {
+          console.log('✅ Background login succeeded:', !!data.user);
+        }
       });
 
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Login timeout after 10 seconds')), 10000);
-      });
-
-      console.log('🚀 Waiting for signInWithPassword (max 10s)...');
+      // Give Supabase a moment to write to localStorage
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      const { data: authData, error: signInError } = await Promise.race([
-        loginPromise,
-        timeoutPromise
-      ]) as any;
-
-      console.log('🚀 AuthContext: signInWithPassword response:', {
-        hasUser: !!authData.user,
-        hasError: !!signInError,
-        errorMessage: signInError?.message
+      // Get the session from Supabase's own storage
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      console.log('🚀 Retrieved session:', {
+        hasSession: !!session,
+        hasUser: !!session?.user,
+        error: sessionError?.message
       });
 
-      if (signInError) {
-        throw new Error(signInError.message);
+      if (sessionError || !session?.user) {
+        throw new Error(sessionError?.message || "Failed to log in");
       }
 
-      if (!authData.user) {
-        throw new Error("Failed to log in");
-      }
-
-      console.log('✅ AuthContext: Login successful, waiting for onAuthStateChange...');
+      console.log('✅ AuthContext: Login successful!');
       
-      // Don't manually set state - onAuthStateChange will handle it
-      // This prevents race conditions
+      // Set auth state from session
+      setAuthState({
+        user: {
+          id: session.user.id,
+          email: session.user.email!,
+          name: session.user.user_metadata?.name || '',
+          subscription_tier: session.user.user_metadata?.subscription_tier || 'free',
+          subscription_status: session.user.user_metadata?.subscription_status || 'active',
+          trial_ends_at: session.user.user_metadata?.trial_ends_at,
+          created_at: session.user.created_at || new Date().toISOString(),
+        },
+        isAuthenticated: true,
+        isLoading: false,
+      });
       
     } catch (error) {
       console.error("❌ AuthContext: Login error:", error);
+      setAuthState(prev => ({ ...prev, isLoading: false }));
       throw error;
     }
   };
