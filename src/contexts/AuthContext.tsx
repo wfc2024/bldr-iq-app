@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User, AuthState } from "../types/user";
 import { authService } from "../services/authService";
+import { supabase } from "../lib/supabase";
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
@@ -50,14 +51,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       console.log('🚀 AuthContext: Starting login...');
-      const user = await authService.login(email, password);
-      console.log('🚀 AuthContext: Login successful, setting state:', user.email);
-      setAuthState({
-        user,
-        isAuthenticated: true,
-        isLoading: false,
+      
+      // Just do the login - let onAuthStateChange handle the state update
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
-      console.log('✅ AuthContext: State updated successfully');
+
+      console.log('🚀 AuthContext: signInWithPassword response:', {
+        hasUser: !!authData.user,
+        hasError: !!signInError,
+        errorMessage: signInError?.message
+      });
+
+      if (signInError) {
+        throw new Error(signInError.message);
+      }
+
+      if (!authData.user) {
+        throw new Error("Failed to log in");
+      }
+
+      console.log('✅ AuthContext: Login successful, waiting for onAuthStateChange...');
+      
+      // Don't manually set state - onAuthStateChange will handle it
+      // This prevents race conditions
+      
     } catch (error) {
       console.error("❌ AuthContext: Login error:", error);
       throw error;
