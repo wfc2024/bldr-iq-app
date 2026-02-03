@@ -1,41 +1,35 @@
 import { Project } from "../types/project";
+import { supabase } from "../lib/supabase";
 
 /**
- * Data Service for Project Management
+ * Data Service for Project Management with Supabase
  * 
- * This service abstracts all data storage operations.
- * Currently uses localStorage, but can be easily swapped with:
- * - Supabase database
- * - REST API
- * - GraphQL
- * - Any other backend
- * 
- * To integrate with Supabase:
- * 1. Replace localStorage calls with supabase.from('projects') queries
- * 2. Add proper error handling
- * 3. Implement real-time subscriptions if needed
+ * Handles all project CRUD operations using Supabase database.
  */
-
-const PROJECTS_KEY = "bldriq_projects";
 
 class DataService {
   /**
    * Get all projects for a user
-   * TODO: Replace with Supabase query filtered by userId
-   * Example: supabase.from('projects').select('*').eq('user_id', userId)
    */
   async getProjects(userId?: string): Promise<Project[]> {
     try {
-      const projectsJson = localStorage.getItem(PROJECTS_KEY);
-      const allProjects: Project[] = projectsJson ? JSON.parse(projectsJson) : [];
-      
-      // If userId is provided, filter projects
-      // For now, return all projects in guest mode (no filtering)
-      if (userId && userId !== "guest-user-1") {
-        return allProjects.filter(p => p.userId === userId);
+      if (!userId) {
+        return [];
       }
-      
-      return allProjects;
+
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error loading projects:", error);
+        return [];
+      }
+
+      // Transform database format to app format
+      return (data || []).map(this.transformFromDb);
     } catch (error) {
       console.error("Error loading projects:", error);
       return [];
@@ -44,13 +38,26 @@ class DataService {
 
   /**
    * Get a single project by ID
-   * TODO: Replace with Supabase query
-   * Example: supabase.from('projects').select('*').eq('id', projectId).single()
    */
   async getProject(projectId: string, userId?: string): Promise<Project | null> {
     try {
-      const projects = await this.getProjects(userId);
-      return projects.find(p => p.id === projectId) || null;
+      if (!userId) {
+        return null;
+      }
+
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', projectId)
+        .eq('user_id', userId)
+        .single();
+
+      if (error) {
+        console.error("Error loading project:", error);
+        return null;
+      }
+
+      return data ? this.transformFromDb(data) : null;
     } catch (error) {
       console.error("Error loading project:", error);
       return null;
@@ -59,64 +66,78 @@ class DataService {
 
   /**
    * Save a new project or update existing one
-   * TODO: Replace with Supabase insert/update
-   * Example: supabase.from('projects').upsert(project)
    */
   async saveProject(project: Project): Promise<Project> {
     try {
-      const projects = await this.getProjects();
-      const existingIndex = projects.findIndex(p => p.id === project.id);
+      const dbProject = this.transformToDb(project);
 
-      if (existingIndex >= 0) {
-        // Update existing
-        projects[existingIndex] = {
-          ...project,
-          updatedAt: new Date().toISOString(),
-        };
+      // Check if project exists
+      const { data: existingProject } = await supabase
+        .from('projects')
+        .select('id')
+        .eq('id', project.id)
+        .single();
+
+      if (existingProject) {
+        // Update existing project
+        const { data, error } = await supabase
+          .from('projects')
+          .update(dbProject)
+          .eq('id', project.id)
+          .select()
+          .single();
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        return this.transformFromDb(data);
       } else {
-        // Add new
-        projects.push({
-          ...project,
-          createdAt: project.createdAt || new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }
+        // Insert new project
+        const { data, error } = await supabase
+          .from('projects')
+          .insert([dbProject])
+          .select()
+          .single();
 
-      localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
-      
-      return existingIndex >= 0 ? projects[existingIndex] : projects[projects.length - 1];
-    } catch (error) {
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        return this.transformFromDb(data);
+      }
+    } catch (error: any) {
       console.error("Error saving project:", error);
-      throw new Error("Failed to save project");
+      throw new Error(error.message || "Failed to save project");
     }
   }
 
   /**
    * Delete a project
-   * TODO: Replace with Supabase delete
-   * Example: supabase.from('projects').delete().eq('id', projectId)
    */
   async deleteProject(projectId: string, userId?: string): Promise<void> {
     try {
-      const projects = await this.getProjects();
-      const filteredProjects = projects.filter(p => {
-        // Only delete if it matches the ID and belongs to the user
-        if (userId && userId !== "guest-user-1") {
-          return !(p.id === projectId && p.userId === userId);
-        }
-        return p.id !== projectId;
-      });
+      if (!userId) {
+        throw new Error("User ID required");
+      }
 
-      localStorage.setItem(PROJECTS_KEY, JSON.stringify(filteredProjects));
-    } catch (error) {
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', projectId)
+        .eq('user_id', userId);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    } catch (error: any) {
       console.error("Error deleting project:", error);
-      throw new Error("Failed to delete project");
+      throw new Error(error.message || "Failed to delete project");
     }
   }
 
   /**
    * Get project statistics for a user
-   * TODO: Can be optimized with database aggregations
    */
   async getProjectStats(userId?: string): Promise<{
     totalProjects: number;
@@ -124,8 +145,12 @@ class DataService {
     activeProjects: number;
   }> {
     try {
+      if (!userId) {
+        return { totalProjects: 0, totalBudget: 0, activeProjects: 0 };
+      }
+
       const projects = await this.getProjects(userId);
-      
+
       return {
         totalProjects: projects.length,
         totalBudget: projects.reduce((sum, p) => sum + p.grandTotal, 0),
@@ -135,6 +160,64 @@ class DataService {
       console.error("Error getting project stats:", error);
       return { totalProjects: 0, totalBudget: 0, activeProjects: 0 };
     }
+  }
+
+  /**
+   * Transform database row to app Project type
+   */
+  private transformFromDb(dbProject: any): Project {
+    return {
+      id: dbProject.id,
+      userId: dbProject.user_id,
+      projectName: dbProject.project_name,
+      address: dbProject.address,
+      gcCompanyName: dbProject.gc_company_name || "",
+      gcMarkupPercentage: Number(dbProject.gc_markup_percentage),
+      generalConditionsPercentage: Number(dbProject.general_conditions_percentage),
+      lineItems: dbProject.line_items || [],
+      subtotal: Number(dbProject.subtotal),
+      grandTotal: Number(dbProject.grand_total),
+      categoryBreakdown: dbProject.category_breakdown || {},
+      createdAt: dbProject.created_at,
+      updatedAt: dbProject.updated_at,
+      status: dbProject.status,
+      notes: dbProject.notes || "",
+      overheadPercentage: dbProject.overhead_percentage ? Number(dbProject.overhead_percentage) : undefined,
+      profitPercentage: dbProject.profit_percentage ? Number(dbProject.profit_percentage) : undefined,
+      bondInsurancePercentage: dbProject.bond_insurance_percentage ? Number(dbProject.bond_insurance_percentage) : undefined,
+      salesTaxPercentage: dbProject.sales_tax_percentage ? Number(dbProject.sales_tax_percentage) : undefined,
+      contingencyPercentage: dbProject.contingency_percentage ? Number(dbProject.contingency_percentage) : undefined,
+      scopeGapBufferPercentage: dbProject.scope_gap_buffer_percentage ? Number(dbProject.scope_gap_buffer_percentage) : undefined,
+      templateType: dbProject.template_type || undefined,
+    };
+  }
+
+  /**
+   * Transform app Project type to database row
+   */
+  private transformToDb(project: Project): any {
+    return {
+      id: project.id,
+      user_id: project.userId,
+      project_name: project.projectName,
+      address: project.address,
+      gc_company_name: project.gcCompanyName || null,
+      gc_markup_percentage: project.gcMarkupPercentage,
+      general_conditions_percentage: project.generalConditionsPercentage,
+      line_items: project.lineItems,
+      subtotal: project.subtotal,
+      grand_total: project.grandTotal,
+      category_breakdown: project.categoryBreakdown || null,
+      status: project.status,
+      notes: project.notes || null,
+      overhead_percentage: project.overheadPercentage ?? null,
+      profit_percentage: project.profitPercentage ?? null,
+      bond_insurance_percentage: project.bondInsurancePercentage ?? null,
+      sales_tax_percentage: project.salesTaxPercentage ?? null,
+      contingency_percentage: project.contingencyPercentage ?? null,
+      scope_gap_buffer_percentage: project.scopeGapBufferPercentage ?? null,
+      template_type: project.templateType || null,
+    };
   }
 }
 
