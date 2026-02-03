@@ -17,8 +17,11 @@ class AuthService {
       const { data: { user: authUser }, error } = await supabase.auth.getUser();
       
       if (error || !authUser) {
+        console.log('❌ No auth user found:', error?.message);
         return null;
       }
+
+      console.log('✅ Auth user found:', authUser.email);
 
       // Get user profile from database
       const { data: profile, error: profileError } = await supabase
@@ -27,10 +30,23 @@ class AuthService {
         .eq('id', authUser.id)
         .single();
 
-      if (profileError || !profile) {
-        console.error("Error loading user profile:", profileError);
+      if (profileError) {
+        console.error("❌ Error loading user profile:", profileError);
+        console.error("Profile error details:", {
+          message: profileError.message,
+          code: profileError.code,
+          details: profileError.details,
+          hint: profileError.hint
+        });
         return null;
       }
+
+      if (!profile) {
+        console.error("❌ No profile found for user:", authUser.id);
+        return null;
+      }
+
+      console.log('✅ Profile loaded successfully:', profile.email);
 
       return {
         id: profile.id,
@@ -39,7 +55,7 @@ class AuthService {
         createdAt: profile.created_at,
       };
     } catch (error) {
-      console.error("Error getting current user:", error);
+      console.error("❌ Error getting current user:", error);
       return null;
     }
   }
