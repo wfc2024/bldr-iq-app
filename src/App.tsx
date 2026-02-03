@@ -44,20 +44,20 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
       </div>
 
       {/* Hero Section */}
-      <div className="max-w-5xl mx-auto px-6 sm:px-8 py-20 md:py-32">
-        <div className="text-center space-y-10">
+      <div className="max-w-5xl mx-auto px-6 sm:px-8 py-24 md:py-40">
+        <div className="text-center space-y-16">
           <h2 className="text-4xl sm:text-5xl md:text-6xl leading-tight px-4" style={{ fontWeight: 700, color: '#1B2D4F' }}>
             Construction Budgeting
             <br />
             Made Simple
           </h2>
           
-          <p className="text-xl sm:text-2xl md:text-3xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
+          <p className="text-xl sm:text-2xl md:text-3xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 pt-4">
             Create preliminary construction budgets without using up contractors' billable time. 
             Built specifically for non-construction professionals.
           </p>
 
-          <div className="pt-10">
+          <div className="pt-16">
             <Button 
               size="lg" 
               onClick={onShowAuth}
@@ -69,7 +69,7 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
           </div>
 
           {/* Features */}
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10 pt-20 text-left px-4">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10 pt-32 text-left px-4">
             <div className="p-8 md:p-10 rounded-lg border bg-card">
               <h3 className="text-xl md:text-2xl mb-4" style={{ fontWeight: 600, color: '#1B2D4F' }}>
                 Pre-Built Templates
