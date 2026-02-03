@@ -1,41 +1,43 @@
 import { User } from "../types/user";
+import { supabase } from "../lib/supabase";
 
 /**
- * Mock Authentication Service
+ * Authentication Service with Supabase Integration
  * 
- * This is a placeholder service that simulates user authentication.
- * When ready to integrate with a real backend (like Supabase), replace
- * the implementation of these methods with actual API calls.
- * 
- * SECURITY NOTE: This is for development/demo only. Do not use in production
- * for real user data or PII.
+ * Handles user authentication using Supabase Auth
+ * and manages user profiles in the database.
  */
-
-const CURRENT_USER_KEY = "bldriq_current_user";
-const USERS_KEY = "bldriq_users";
-
-// Mock user for development (guest mode)
-const GUEST_USER: User = {
-  id: "guest-user-1",
-  email: "guest@bldriq.com",
-  name: "Guest User",
-  createdAt: new Date().toISOString(),
-};
 
 class AuthService {
   /**
    * Get the currently authenticated user
-   * TODO: Replace with Supabase auth.getUser() or similar
    */
-  getCurrentUser(): User | null {
+  async getCurrentUser(): Promise<User | null> {
     try {
-      const userJson = localStorage.getItem(CURRENT_USER_KEY);
-      if (userJson) {
-        return JSON.parse(userJson);
+      const { data: { user: authUser }, error } = await supabase.auth.getUser();
+      
+      if (error || !authUser) {
+        return null;
       }
-      // For now, auto-login as guest
-      this.setCurrentUser(GUEST_USER);
-      return GUEST_USER;
+
+      // Get user profile from database
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authUser.id)
+        .single();
+
+      if (profileError || !profile) {
+        console.error("Error loading user profile:", profileError);
+        return null;
+      }
+
+      return {
+        id: profile.id,
+        email: profile.email,
+        name: profile.name,
+        createdAt: profile.created_at,
+      };
     } catch (error) {
       console.error("Error getting current user:", error);
       return null;
@@ -44,98 +46,158 @@ class AuthService {
 
   /**
    * Sign up a new user
-   * TODO: Replace with Supabase auth.signUp() or similar
    */
   async signup(email: string, password: string, name: string): Promise<User> {
-    // Mock implementation - stores in localStorage
-    // In production, this would call your backend API
-    
-    const users = this.getAllUsers();
-    const existingUser = users.find(u => u.email === email);
-    
-    if (existingUser) {
-      throw new Error("User with this email already exists");
+    try {
+      // Create auth user
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name: name,
+          },
+        },
+      });
+
+      if (signUpError) {
+        throw new Error(signUpError.message);
+      }
+
+      if (!authData.user) {
+        throw new Error("Failed to create user");
+      }
+
+      // Profile is automatically created by database trigger
+      // Wait a moment for the trigger to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Get the created profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error("Failed to create user profile");
+      }
+
+      return {
+        id: profile.id,
+        email: profile.email,
+        name: profile.name,
+        createdAt: profile.created_at,
+      };
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      throw new Error(error.message || "Failed to sign up");
     }
-
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      email,
-      name,
-      createdAt: new Date().toISOString(),
-    };
-
-    users.push(newUser);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    this.setCurrentUser(newUser);
-    
-    return newUser;
   }
 
   /**
    * Log in an existing user
-   * TODO: Replace with Supabase auth.signInWithPassword() or similar
    */
   async login(email: string, password: string): Promise<User> {
-    // Mock implementation
-    // In production, this would verify credentials with your backend
-    
-    const users = this.getAllUsers();
-    const user = users.find(u => u.email === email);
-    
-    if (!user) {
-      throw new Error("Invalid email or password");
-    }
+    try {
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    this.setCurrentUser(user);
-    return user;
+      if (signInError) {
+        throw new Error(signInError.message);
+      }
+
+      if (!authData.user) {
+        throw new Error("Failed to log in");
+      }
+
+      // Get user profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error("Failed to load user profile");
+      }
+
+      return {
+        id: profile.id,
+        email: profile.email,
+        name: profile.name,
+        createdAt: profile.created_at,
+      };
+    } catch (error: any) {
+      console.error("Login error:", error);
+      throw new Error(error.message || "Invalid email or password");
+    }
   }
 
   /**
    * Log out the current user
-   * TODO: Replace with Supabase auth.signOut() or similar
    */
   async logout(): Promise<void> {
-    localStorage.removeItem(CURRENT_USER_KEY);
-    // Auto-login as guest after logout
-    this.setCurrentUser(GUEST_USER);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw new Error(error.message);
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      throw error;
+    }
   }
 
   /**
    * Update user profile
-   * TODO: Replace with Supabase database update or similar
    */
   async updateProfile(userId: string, updates: Partial<User>): Promise<User> {
-    const currentUser = this.getCurrentUser();
-    if (!currentUser || currentUser.id !== userId) {
-      throw new Error("Unauthorized");
-    }
-
-    const updatedUser = { ...currentUser, ...updates };
-    this.setCurrentUser(updatedUser);
-
-    // Also update in users list
-    const users = this.getAllUsers();
-    const index = users.findIndex(u => u.id === userId);
-    if (index !== -1) {
-      users[index] = updatedUser;
-      localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    }
-
-    return updatedUser;
-  }
-
-  // Helper methods
-  private setCurrentUser(user: User): void {
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
-  }
-
-  private getAllUsers(): User[] {
     try {
-      const usersJson = localStorage.getItem(USERS_KEY);
-      return usersJson ? JSON.parse(usersJson) : [];
-    } catch {
-      return [];
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .update({
+          name: updates.name,
+          email: updates.email,
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (!profile) {
+        throw new Error("Failed to update profile");
+      }
+
+      return {
+        id: profile.id,
+        email: profile.email,
+        name: profile.name,
+        createdAt: profile.created_at,
+      };
+    } catch (error: any) {
+      console.error("Update profile error:", error);
+      throw new Error(error.message || "Failed to update profile");
     }
+  }
+
+  /**
+   * Listen for auth state changes
+   */
+  onAuthStateChange(callback: (user: User | null) => void) {
+    return supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const user = await this.getCurrentUser();
+        callback(user);
+      } else {
+        callback(null);
+      }
+    });
   }
 }
 
