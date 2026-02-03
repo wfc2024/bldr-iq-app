@@ -52,7 +52,7 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
             Made Simple
           </h2>
           
-          <p className="text-xl sm:text-2xl md:text-3xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4" style={{ marginBottom: '64px' }}>
+          <p className="text-2xl sm:text-3xl md:text-4xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4" style={{ marginBottom: '64px' }}>
             Create preliminary construction budgets without using up contractors' billable time. 
             Built specifically for non-construction professionals.
           </p>
