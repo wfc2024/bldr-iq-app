@@ -73,11 +73,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('🚀 Retrieved session:', {
         hasSession: !!session,
         hasUser: !!session?.user,
+        sessionKeys: session ? Object.keys(session) : [],
+        userEmail: session?.user?.email,
         error: sessionError?.message
       });
 
-      if (sessionError || !session?.user) {
-        throw new Error(sessionError?.message || "Failed to log in");
+      if (sessionError) {
+        throw new Error(sessionError.message);
+      }
+      
+      if (!session) {
+        throw new Error("No session found after login");
+      }
+      
+      if (!session.user) {
+        console.error('❌ Session exists but no user:', session);
+        throw new Error("Session has no user data");
       }
 
       console.log('✅ AuthContext: Login successful!');
