@@ -40,6 +40,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
+    flowType: 'pkce',
     storage: typeof window !== 'undefined' ? localStorage : undefined,
   },
 });
