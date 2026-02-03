@@ -18,14 +18,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
   });
 
-  // Initialize auth state on mount
+  // Initialize auth state on mount and listen for auth changes
   useEffect(() => {
-    const user = authService.getCurrentUser();
-    setAuthState({
-      user,
-      isAuthenticated: !!user,
-      isLoading: false,
+    // Get initial user state
+    const initAuth = async () => {
+      const user = await authService.getCurrentUser();
+      setAuthState({
+        user,
+        isAuthenticated: !!user,
+        isLoading: false,
+      });
+    };
+
+    initAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = authService.onAuthStateChange((user) => {
+      setAuthState({
+        user,
+        isAuthenticated: !!user,
+        isLoading: false,
+      });
     });
+
+    // Cleanup subscription on unmount
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -59,10 +78,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       await authService.logout();
-      const guestUser = authService.getCurrentUser();
       setAuthState({
-        user: guestUser,
-        isAuthenticated: !!guestUser,
+        user: null,
+        isAuthenticated: false,
         isLoading: false,
       });
     } catch (error) {
