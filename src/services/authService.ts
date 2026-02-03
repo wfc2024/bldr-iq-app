@@ -116,9 +116,17 @@ class AuthService {
    */
   async login(email: string, password: string): Promise<User> {
     try {
+      console.log('🔐 Starting login for:', email);
+      
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
+      });
+
+      console.log('🔐 SignIn response:', { 
+        hasUser: !!authData.user, 
+        hasError: !!signInError,
+        errorMessage: signInError?.message 
       });
 
       if (signInError) {
@@ -129,6 +137,8 @@ class AuthService {
         throw new Error("Failed to log in");
       }
 
+      console.log('🔐 Auth successful, fetching profile for user:', authData.user.id);
+
       // Get user profile
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -136,9 +146,20 @@ class AuthService {
         .eq('id', authData.user.id)
         .single();
 
+      console.log('🔐 Profile fetch result:', { 
+        hasProfile: !!profile, 
+        hasError: !!profileError,
+        errorMessage: profileError?.message,
+        errorCode: profileError?.code,
+        errorDetails: profileError?.details 
+      });
+
       if (profileError || !profile) {
+        console.error('🔐 Profile fetch failed:', profileError);
         throw new Error("Failed to load user profile");
       }
+
+      console.log('✅ Login complete! Profile:', profile.email);
 
       return {
         id: profile.id,
@@ -147,7 +168,7 @@ class AuthService {
         createdAt: profile.created_at,
       };
     } catch (error: any) {
-      console.error("Login error:", error);
+      console.error("❌ Login error:", error);
       throw new Error(error.message || "Invalid email or password");
     }
   }
