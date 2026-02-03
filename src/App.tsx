@@ -44,13 +44,29 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
       </div>
 
       {/* Hero Section */}
-      <div className="max-w-5xl mx-auto px-6 sm:px-8 py-24 md:py-40">
-        <div className="text-center">
-          <h2 className="text-5xl sm:text-6xl md:text-7xl leading-tight px-4" style={{ fontWeight: 700, color: '#1B2D4F', marginBottom: '64px', lineHeight: '1.2' }}>
+      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '96px 24px 96px 24px' }}>
+        <div style={{ textAlign: 'center' }}>
+          <h2 style={{ 
+            fontSize: '48px',
+            fontWeight: 700, 
+            color: '#1B2D4F', 
+            marginBottom: '64px', 
+            lineHeight: '1.2',
+            padding: '0 16px'
+          }}>
             Construction Budgeting Made Simple
           </h2>
           
-          <p className="text-xl sm:text-2xl md:text-3xl max-w-4xl mx-auto leading-relaxed px-4" style={{ marginBottom: '64px', color: '#6B7280', fontWeight: 400 }}>
+          <p style={{ 
+            fontSize: '20px',
+            maxWidth: '896px', 
+            margin: '0 auto',
+            marginBottom: '64px',
+            lineHeight: '1.625',
+            padding: '0 16px',
+            color: '#6B7280',
+            fontWeight: 400
+          }}>
             Create preliminary construction budgets without using up contractors' billable time. Built specifically for non-construction professionals.
           </p>
 
@@ -58,38 +74,47 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
             <Button 
               size="lg" 
               onClick={onShowAuth}
-              className="text-lg sm:text-xl px-10 sm:px-12 py-7 sm:py-8"
-              style={{ backgroundColor: '#1B2D4F' }}
+              style={{ 
+                backgroundColor: '#1B2D4F',
+                fontSize: '18px',
+                padding: '28px 40px'
+              }}
             >
               Get Started - Sign In or Sign Up
             </Button>
           </div>
 
           {/* Features */}
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10 text-left px-4">
-            <div className="p-8 md:p-10 rounded-lg border bg-card">
-              <h3 className="text-xl md:text-2xl mb-4" style={{ fontWeight: 600, color: '#1B2D4F' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '32px',
+            textAlign: 'left',
+            padding: '0 16px'
+          }}>
+            <div style={{ padding: '32px', borderRadius: '8px', border: '1px solid #e5e7eb', backgroundColor: 'white' }}>
+              <h3 style={{ fontSize: '20px', marginBottom: '16px', fontWeight: 600, color: '#1B2D4F' }}>
                 Pre-Built Templates
               </h3>
-              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+              <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: '1.625' }}>
                 Choose from office, retail, or restaurant templates with common scopes of work already included.
               </p>
             </div>
 
-            <div className="p-8 md:p-10 rounded-lg border bg-card">
-              <h3 className="text-xl md:text-2xl mb-4" style={{ fontWeight: 600, color: '#1B2D4F' }}>
+            <div style={{ padding: '32px', borderRadius: '8px', border: '1px solid #e5e7eb', backgroundColor: 'white' }}>
+              <h3 style={{ fontSize: '20px', marginBottom: '16px', fontWeight: 600, color: '#1B2D4F' }}>
                 Dropdown Selections
               </h3>
-              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+              <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: '1.625' }}>
                 Minimal manual input required. Select from 69 construction line items organized into 14 categories.
               </p>
             </div>
 
-            <div className="p-8 md:p-10 rounded-lg border bg-card sm:col-span-2 md:col-span-1">
-              <h3 className="text-xl md:text-2xl mb-4" style={{ fontWeight: 600, color: '#1B2D4F' }}>
+            <div style={{ padding: '32px', borderRadius: '8px', border: '1px solid #e5e7eb', backgroundColor: 'white' }}>
+              <h3 style={{ fontSize: '20px', marginBottom: '16px', fontWeight: 600, color: '#1B2D4F' }}>
                 Professional Reports
               </h3>
-              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+              <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: '1.625' }}>
                 Export detailed budgets to PDF with cost breakdowns, charts, and benchmark comparisons.
               </p>
             </div>
