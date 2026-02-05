@@ -19,6 +19,34 @@ export function registerServiceWorker() {
   }
 }
 
+// Clear all caches and service workers (for troubleshooting)
+export async function clearAllCaches() {
+  try {
+    // Clear all caches
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
+      console.log('✅ All caches cleared');
+    }
+
+    // Unregister all service workers
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map(reg => reg.unregister()));
+      console.log('✅ All service workers unregistered');
+    }
+
+    // Clear localStorage (optional - be careful with this)
+    // localStorage.clear();
+    
+    console.log('✅ App reset complete. Please refresh the page.');
+    return true;
+  } catch (error) {
+    console.error('❌ Error clearing caches:', error);
+    return false;
+  }
+}
+
 // Function to show install prompt
 export function setupInstallPrompt() {
   let deferredPrompt: any;
