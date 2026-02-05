@@ -14,46 +14,61 @@ class AuthService {
    */
   async getCurrentUser(): Promise<User | null> {
     try {
-      const { data: { user: authUser }, error } = await supabase.auth.getUser();
+      console.log('🔍 Getting current user...');
       
-      if (error || !authUser) {
-        console.log('❌ No auth user found:', error?.message);
-        return null;
-      }
+      // Add timeout to prevent hanging on mobile
+      const timeoutPromise = new Promise<null>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('getCurrentUser timed out after 8 seconds'));
+        }, 8000);
+      });
 
-      console.log('✅ Auth user found:', authUser.email);
+      const fetchUserPromise = async () => {
+        const { data: { user: authUser }, error } = await supabase.auth.getUser();
+        
+        if (error || !authUser) {
+          console.log('❌ No auth user found:', error?.message);
+          return null;
+        }
 
-      // Get user profile from database
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', authUser.id)
-        .single();
+        console.log('✅ Auth user found:', authUser.email);
 
-      if (profileError) {
-        console.error("❌ Error loading user profile:", profileError);
-        console.error("Profile error details:", {
-          message: profileError.message,
-          code: profileError.code,
-          details: profileError.details,
-          hint: profileError.hint
-        });
-        return null;
-      }
+        // Get user profile from database
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', authUser.id)
+          .single();
 
-      if (!profile) {
-        console.error("❌ No profile found for user:", authUser.id);
-        return null;
-      }
+        if (profileError) {
+          console.error("❌ Error loading user profile:", profileError);
+          console.error("Profile error details:", {
+            message: profileError.message,
+            code: profileError.code,
+            details: profileError.details,
+            hint: profileError.hint
+          });
+          return null;
+        }
 
-      console.log('✅ Profile loaded successfully:', profile.email);
+        if (!profile) {
+          console.error("❌ No profile found for user:", authUser.id);
+          return null;
+        }
 
-      return {
-        id: profile.id,
-        email: profile.email,
-        name: profile.name,
-        createdAt: profile.created_at,
+        console.log('✅ Profile loaded successfully:', profile.email);
+
+        return {
+          id: profile.id,
+          email: profile.email,
+          name: profile.name,
+          createdAt: profile.created_at,
+        };
       };
+
+      // Race between fetch and timeout
+      return await Promise.race([fetchUserPromise(), timeoutPromise]);
+      
     } catch (error) {
       console.error("❌ Error getting current user:", error);
       return null;
