@@ -21,30 +21,75 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Initialize auth state on mount and listen for auth changes
   useEffect(() => {
-    // Get initial user state
+    let isActive = true; // Track if component is still mounted
+    
+    // Get initial user state with timeout protection
     const initAuth = async () => {
-      const user = await authService.getCurrentUser();
-      setAuthState({
-        user,
-        isAuthenticated: !!user,
-        isLoading: false,
-      });
+      try {
+        console.log('🔄 Initializing auth...');
+        
+        // Add timeout to prevent infinite loading
+        const timeoutPromise = new Promise<User | null>((resolve) => {
+          setTimeout(() => {
+            console.log('⏱️ Auth check timed out after 10 seconds');
+            resolve(null);
+          }, 10000); // 10 second timeout
+        });
+
+        const authPromise = authService.getCurrentUser();
+        
+        // Race between auth check and timeout
+        const user = await Promise.race([authPromise, timeoutPromise]);
+        
+        if (isActive) {
+          console.log('✅ Auth initialized:', !!user);
+          setAuthState({
+            user,
+            isAuthenticated: !!user,
+            isLoading: false,
+          });
+        }
+      } catch (error) {
+        console.error('❌ Error initializing auth:', error);
+        if (isActive) {
+          setAuthState({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+        }
+      }
     };
 
     initAuth();
 
     // Listen for auth state changes
     const { data: { subscription } } = authService.onAuthStateChange((user) => {
-      setAuthState({
-        user,
-        isAuthenticated: !!user,
-        isLoading: false,
-      });
+      if (isActive) {
+        console.log('🔄 Auth state changed:', !!user);
+        setAuthState({
+          user,
+          isAuthenticated: !!user,
+          isLoading: false,
+        });
+      }
     });
 
-    // Cleanup subscription on unmount
+    // Handle visibility change (when tab becomes active again)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && isActive) {
+        console.log('👁️ Tab became visible, refreshing auth...');
+        initAuth();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Cleanup subscription and listener on unmount
     return () => {
+      isActive = false;
       subscription?.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
