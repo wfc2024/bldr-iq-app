@@ -1155,10 +1155,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                           <span>Restaurant:</span>
                           <span>${benchmarkData.costPerSqFt.restaurant.min}-${benchmarkData.costPerSqFt.restaurant.max}/sqft</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span>Medical:</span>
-                          <span>${benchmarkData.costPerSqFt.medical.min}-${benchmarkData.costPerSqFt.medical.max}/sqft</span>
-                        </div>
+
                       </div>
                     </div>
                   </CardContent>
