@@ -388,6 +388,26 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                           </Select>
                         </div>
                       </div>
+                      {/* Scope Gap Buffer - Only for Conceptual Template */}
+                      {displayProject.templateType === "Conceptual BLD w/ Pre-Packaged Assemblies" && (
+                        <div className="space-y-2">
+                          <Label>Scope Gap Buffer (%)</Label>
+                          <Select
+                            value={(displayProject.scopeGapBufferPercentage || 10).toString()}
+                            onValueChange={(value) => setEditedProject({ ...editedProject!, scopeGapBufferPercentage: parseInt(value) })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="5">5%</SelectItem>
+                              <SelectItem value="10">10% (Recommended)</SelectItem>
+                              <SelectItem value="15">15%</SelectItem>
+                              <SelectItem value="20">20%</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Address</Label>
