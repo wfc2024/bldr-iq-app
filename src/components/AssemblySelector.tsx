@@ -141,7 +141,7 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
             Add Package
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-xl max-h-[80vh] sm:max-h-[65vh] overflow-hidden flex flex-col">
+        <DialogContent className="w-full max-w-[calc(100vw-2rem)] sm:w-[600px] sm:max-w-[600px] max-h-[80vh] sm:max-h-[70vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle>Select a Pre-Built Package</DialogTitle>
             <DialogDescription>
