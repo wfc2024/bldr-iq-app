@@ -360,6 +360,17 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                           />
                         </div>
                         <div className="space-y-2">
+                          <Label>General Conditions (%)</Label>
+                          <Input
+                            type="number"
+                            inputMode="decimal"
+                            min="0"
+                            step="0.01"
+                            value={displayProject.generalConditionsPercentage}
+                            onChange={(e) => setEditedProject({ ...editedProject!, generalConditionsPercentage: parseFloat(e.target.value) || 0 })}
+                          />
+                        </div>
+                        <div className="space-y-2">
                           <Label>GC Markup (%)</Label>
                           <Input
                             type="number"
@@ -370,6 +381,8 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                             onChange={(e) => setEditedProject({ ...editedProject!, gcMarkupPercentage: parseFloat(e.target.value) || 0 })}
                           />
                         </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-2">
                           <Label>Scope Gap Buffer (%)</Label>
                           <Select
@@ -387,8 +400,6 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                             </SelectContent>
                           </Select>
                         </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Status</Label>
                           <Select
