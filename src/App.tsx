@@ -54,7 +54,7 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
             lineHeight: '1.2',
             padding: '0 16px'
           }}>
-            Construction Budgeting Made Simple
+            Know in minutes, not weeks, if a deal is financially realistic.
           </h2>
           
           <p style={{ 
@@ -67,10 +67,10 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
             color: '#6B7280',
             fontWeight: 400
           }}>
-            Create preliminary construction budgets without using up contractors' billable time. Built specifically for non-construction professionals.
+            Built for brokers, bankers, and early decision-makers, BLDR IQ delivers early-stage TI cost insight so you can filter smarter from the start.
           </p>
 
-          <div style={{ marginBottom: '96px' }}>
+          <div style={{ marginBottom: '96px', textAlign: 'center' }}>
             <Button 
               size="lg" 
               onClick={onShowAuth}
@@ -82,6 +82,14 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
             >
               Get Started - Sign In or Sign Up
             </Button>
+            <p style={{
+              fontSize: '14px',
+              color: '#6B7280',
+              marginTop: '12px',
+              fontStyle: 'italic'
+            }}>
+              for early cost clarity for commercial deals
+            </p>
           </div>
 
           {/* Features */}
