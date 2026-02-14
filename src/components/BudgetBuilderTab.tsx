@@ -662,6 +662,8 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
       updatedAt: new Date().toISOString(),
       status,
       notes: projectNotes,
+      scopeGapBufferPercentage: scopeGapBuffer,
+      templateType,
     };
 
     try {
@@ -799,6 +801,23 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                   />
                 </div>
                 <div className="space-y-2">
+                  <div className="flex items-center">
+                    <Label htmlFor="scopeGapBuffer">Scope Gap Buffer (%)</Label>
+                    <HelpTooltip content="This buffer accounts for scope items commonly missed in conceptual budgets, including electrical work triggered by layout changes, HVAC adjustments, patching/finishing, blocking for fixtures, and unforeseen site conditions. Standard practice for preliminary budgets." />
+                  </div>
+                  <Select value={scopeGapBuffer.toString()} onValueChange={(value) => setScopeGapBuffer(parseInt(value))}>
+                    <SelectTrigger id="scopeGapBuffer">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5%</SelectItem>
+                      <SelectItem value="10">10% (Recommended)</SelectItem>
+                      <SelectItem value="15">15%</SelectItem>
+                      <SelectItem value="20">20%</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="address">Address (Optional)</Label>
                   <Input
                     id="address"
@@ -807,6 +826,8 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                     placeholder="Enter project address"
                   />
                 </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="gcCompanyName">GC Company Name (Optional)</Label>
                   <Input
@@ -1201,39 +1222,11 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                       <span className="font-mono text-right break-all">{formatCurrency(calculateSubtotal())}</span>
                     </div>
                     
-                    {/* Scope Gap Buffer - Only for Conceptual Template */}
-                    {templateType === "Conceptual BLD w/ Pre-Packaged Assemblies" && (
-                      <div className="border-l-2 border-blue-500 pl-4 py-2 bg-blue-50/50 dark:bg-blue-950/20 mb-2">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span>Scope Gap Buffer:</span>
-                          <HelpTooltip content="This buffer accounts for scope items commonly missed in conceptual assemblies, including electrical work triggered by layout changes, HVAC adjustments, patching/finishing, blocking for fixtures, and unforeseen site conditions. Standard practice for preliminary budgets." />
-                        </div>
-                        <Select
-                          value={scopeGapBuffer.toString()}
-                          onValueChange={(value) => setScopeGapBuffer(parseInt(value))}
-                        >
-                          <SelectTrigger className="w-full h-8 mb-2">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="5">5% - Very confident in scope</SelectItem>
-                            <SelectItem value="10">10% - Mostly figured out (Recommended)</SelectItem>
-                            <SelectItem value="15">15% - About half-baked</SelectItem>
-                            <SelectItem value="20">20% - Just starting to explore</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <p className="text-xs text-muted-foreground italic">
-                          Adjustable based on project complexity and stage
-                        </p>
-                      </div>
-                    )}
-                    
-                    {templateType === "Conceptual BLD w/ Pre-Packaged Assemblies" && (
-                      <div className="flex justify-between items-center gap-4">
-                        <span className="flex-shrink-0">Scope Gap Buffer ({scopeGapBuffer || 0}%):</span>
-                        <span className="font-mono text-right break-all">{formatCurrency(calculateScopeGapBuffer())}</span>
-                      </div>
-                    )}
+                    {/* Scope Gap Buffer - Always show */}
+                    <div className="flex justify-between items-center gap-4">
+                      <span className="flex-shrink-0">Scope Gap Buffer ({scopeGapBuffer || 0}%):</span>
+                      <span className="font-mono text-right break-all">{formatCurrency(calculateScopeGapBuffer())}</span>
+                    </div>
                     
                     <div className="flex justify-between items-center gap-4">
                       <span className="flex-shrink-0">General Conditions ({generalConditions || 0}%):</span>
