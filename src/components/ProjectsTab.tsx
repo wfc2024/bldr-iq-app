@@ -371,26 +371,6 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label>Status</Label>
-                          <Select
-                            value={displayProject.status}
-                            onValueChange={(value: any) => setEditedProject({ ...editedProject!, status: value })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Draft">Draft</SelectItem>
-                              <SelectItem value="Active">Active</SelectItem>
-                              <SelectItem value="Completed">Completed</SelectItem>
-                              <SelectItem value="Archived">Archived</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      {/* Scope Gap Buffer - Only for Conceptual Template */}
-                      {displayProject.templateType === "Conceptual BLD w/ Pre-Packaged Assemblies" && (
-                        <div className="space-y-2">
                           <Label>Scope Gap Buffer (%)</Label>
                           <Select
                             value={(displayProject.scopeGapBufferPercentage || 10).toString()}
@@ -407,14 +387,24 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                             </SelectContent>
                           </Select>
                         </div>
-                      )}
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>Address</Label>
-                          <Input
-                            value={displayProject.address}
-                            onChange={(e) => setEditedProject({ ...editedProject!, address: e.target.value })}
-                          />
+                          <Label>Status</Label>
+                          <Select
+                            value={displayProject.status}
+                            onValueChange={(value: any) => setEditedProject({ ...editedProject!, status: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Draft">Draft</SelectItem>
+                              <SelectItem value="Active">Active</SelectItem>
+                              <SelectItem value="Completed">Completed</SelectItem>
+                              <SelectItem value="Archived">Archived</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                         <div className="space-y-2">
                           <Label>GC Company Name (Optional)</Label>
@@ -422,6 +412,15 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                             value={displayProject.gcCompanyName || ""}
                             onChange={(e) => setEditedProject({ ...editedProject!, gcCompanyName: e.target.value })}
                             placeholder="Enter company providing this budget"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="space-y-2">
+                          <Label>Address</Label>
+                          <Input
+                            value={displayProject.address}
+                            onChange={(e) => setEditedProject({ ...editedProject!, address: e.target.value })}
                           />
                         </div>
                       </div>
@@ -446,6 +445,10 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                         </p>
                       )}
                       <p className="text-muted-foreground text-sm md:text-base">{displayProject.address}</p>
+                      <div className="flex flex-wrap gap-4 text-xs md:text-sm text-muted-foreground">
+                        <span>GC Markup: {displayProject.gcMarkupPercentage}%</span>
+                        <span>Scope Gap Buffer: {displayProject.scopeGapBufferPercentage || 10}%</span>
+                      </div>
                       <p className="text-xs md:text-sm text-muted-foreground">
                         Last updated: {formatDate(displayProject.updatedAt)}
                       </p>
@@ -553,7 +556,7 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                       </div>
                       
                       {/* Scope Gap Buffer - Only for Conceptual Template */}
-                      {project.templateType === "Conceptual BLD w/ Pre-Packaged Assemblies" && project.scopeGapBufferPercentage && (
+                      {project.scopeGapBufferPercentage && (
                         <div className="flex justify-between items-center">
                           <span>Scope Gap Buffer ({project.scopeGapBufferPercentage}%):</span>
                           <span>{formatCurrency(project.subtotal * (project.scopeGapBufferPercentage / 100))}</span>
