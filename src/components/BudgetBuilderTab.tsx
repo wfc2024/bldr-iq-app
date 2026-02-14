@@ -1207,17 +1207,17 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                     {/* Scope Gap Buffer - Only for Conceptual Template */}
                     {templateType === "Conceptual BLD w/ Pre-Packaged Assemblies" && (
                       <div className="border-l-2 border-blue-500 pl-4 py-2 bg-blue-50/50 dark:bg-blue-950/20">
-                        <div className="flex justify-between items-center gap-4 mb-2">
-                          <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-2">
+                          <div className="flex items-center gap-2">
                             <span>Scope Gap Buffer:</span>
                             <HelpTooltip content="This buffer accounts for scope items commonly missed in conceptual assemblies, including electrical work triggered by layout changes, HVAC adjustments, patching/finishing, blocking for fixtures, and unforeseen site conditions. Standard practice for preliminary budgets." />
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 justify-between sm:justify-start">
                             <Select
                               value={scopeGapBuffer.toString()}
                               onValueChange={(value) => setScopeGapBuffer(parseInt(value))}
                             >
-                              <SelectTrigger className="w-[280px] h-8">
+                              <SelectTrigger className="w-full sm:w-[280px] h-8">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -1227,7 +1227,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                                 <SelectItem value="20">20% - Just starting to explore</SelectItem>
                               </SelectContent>
                             </Select>
-                            <span className="font-mono text-right">{formatCurrency(calculateScopeGapBuffer())}</span>
+                            <span className="font-mono text-right whitespace-nowrap">{formatCurrency(calculateScopeGapBuffer())}</span>
                           </div>
                         </div>
                         <p className="text-xs text-muted-foreground italic">
