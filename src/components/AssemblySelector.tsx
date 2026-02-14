@@ -140,19 +140,19 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
             Add Package
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle className="text-base sm:text-lg">Select a Pre-Built Package</DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm">
+            <DialogTitle>Select a Pre-Built Package</DialogTitle>
+            <DialogDescription>
               Save time with ready-made bundles of commonly needed items. Perfect for offices, bathrooms, and more.
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-            <div className="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0">
-              <TabsList className="inline-flex min-w-full sm:grid sm:w-full" style={{ gridTemplateColumns: sortedCategories.length > 0 ? `repeat(${sortedCategories.length}, minmax(0, 1fr))` : 'auto' }}>
+          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full flex-1 overflow-hidden flex flex-col">
+            <div className="overflow-x-auto pb-2 flex-shrink-0">
+              <TabsList className="inline-flex w-full sm:grid" style={{ gridTemplateColumns: sortedCategories.length > 0 ? `repeat(${sortedCategories.length}, minmax(0, 1fr))` : 'auto' }}>
                 {sortedCategories.map(category => (
-                  <TabsTrigger key={category} value={category} className="text-xs whitespace-nowrap px-3 sm:px-4">
+                  <TabsTrigger key={category} value={category} className="text-xs whitespace-nowrap flex-shrink-0">
                     {category}
                   </TabsTrigger>
                 ))}
@@ -160,7 +160,7 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
             </div>
 
             {sortedCategories.map(category => (
-              <TabsContent key={category} value={category} className="space-y-3 mt-4">
+              <TabsContent key={category} value={category} className="space-y-3 mt-4 overflow-y-auto flex-1">
                 {allAssemblies
                   .filter(a => a.category === category)
                   .map(assembly => (
