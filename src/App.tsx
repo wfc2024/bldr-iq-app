@@ -77,19 +77,23 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
               style={{ 
                 backgroundColor: '#1B2D4F',
                 fontSize: '18px',
-                padding: '28px 40px'
+                padding: '28px 40px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px',
+                height: 'auto'
               }}
             >
-              Get Started - Sign In or Sign Up
+              <span>Get Started - Sign In or Sign Up</span>
+              <span style={{
+                fontSize: '14px',
+                fontStyle: 'italic',
+                fontWeight: 400,
+                opacity: 0.9
+              }}>
+                for early cost clarity for commercial deals
+              </span>
             </Button>
-            <p style={{
-              fontSize: '14px',
-              color: '#6B7280',
-              marginTop: '12px',
-              fontStyle: 'italic'
-            }}>
-              for early cost clarity for commercial deals
-            </p>
           </div>
 
           {/* Features */}
