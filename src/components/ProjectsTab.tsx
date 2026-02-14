@@ -551,6 +551,15 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                         <span>Subtotal:</span>
                         <span>{formatCurrency(project.subtotal)}</span>
                       </div>
+                      
+                      {/* Scope Gap Buffer - Only for Conceptual Template */}
+                      {project.templateType === "Conceptual BLD w/ Pre-Packaged Assemblies" && project.scopeGapBufferPercentage && (
+                        <div className="flex justify-between items-center">
+                          <span>Scope Gap Buffer ({project.scopeGapBufferPercentage}%):</span>
+                          <span>{formatCurrency(project.subtotal * (project.scopeGapBufferPercentage / 100))}</span>
+                        </div>
+                      )}
+                      
                       <div className="flex justify-between items-center">
                         <span>GC Markup ({project.gcMarkupPercentage}%):</span>
                         <span>{formatCurrency(project.grandTotal - project.subtotal)}</span>
@@ -760,10 +769,6 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                   <div className="flex justify-between items-center">
                     <span>GC Markup ({displayProject.gcMarkupPercentage}%):</span>
                     <span>{formatCurrency(displayProject.grandTotal - displayProject.subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between items-center pt-2 border-t">
-                    <span>Grand Total:</span>
-                    <span>{formatCurrency(displayProject.grandTotal)}</span>
                   </div>
                 </div>
               </CardContent>
