@@ -81,7 +81,8 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '4px',
-                height: 'auto'
+                height: 'auto',
+                margin: '0 auto'
               }}
             >
               <span>Get Started - Sign In or Sign Up</span>
