@@ -253,7 +253,13 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
 
       {/* Quantity Selection Dialog */}
       <Dialog open={quantityDialogOpen} onOpenChange={setQuantityDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent 
+          className="max-w-[calc(100vw-2rem)] sm:max-w-md"
+          style={{ 
+            width: window.innerWidth >= 640 ? '400px' : undefined,
+            maxWidth: window.innerWidth >= 640 ? '400px' : 'calc(100vw - 2rem)'
+          }}
+        >
           <DialogHeader>
             <DialogTitle>Set Quantity</DialogTitle>
             <DialogDescription>
