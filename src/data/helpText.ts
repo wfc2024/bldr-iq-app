@@ -177,7 +177,6 @@ export const benchmarkData = {
   costPerSqFt: {
     office: { min: 75, max: 125, average: 100 },
     retail: { min: 75, max: 125, average: 100 },
-    restaurant: { min: 125, max: 200, average: 162.5 },
-    medical: { min: 100, max: 175, average: 137.5 }
+    restaurant: { min: 125, max: 200, average: 162.5 }
   }
 };
