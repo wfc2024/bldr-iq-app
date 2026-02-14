@@ -752,6 +752,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                   <Input
                     id="totalSqft"
                     type="number"
+                    inputMode="decimal"
                     min="0"
                     value={totalSqft}
                     onChange={(e) => setTotalSqft(e.target.value)}
@@ -767,6 +768,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                   <Input
                     id="generalConditions"
                     type="number"
+                    inputMode="decimal"
                     min="0"
                     step="0.5"
                     data-tutorial="gc-controls"
@@ -786,6 +788,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                   <Input
                     id="gcMarkup"
                     type="number"
+                    inputMode="decimal"
                     min="0"
                     step="0.5"
                     value={gcMarkup}
@@ -1017,6 +1020,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                               <div className="flex items-center gap-1">
                                 <Input
                                   type="number"
+                                  inputMode="decimal"
                                   min="0"
                                   step="1"
                                   value={item.quantity || ""}
@@ -1039,6 +1043,7 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                               {item.isCustom ? (
                                 <Input
                                   type="number"
+                                  inputMode="decimal"
                                   min="0"
                                   step="0.01"
                                   value={item.unitCost || ""}
