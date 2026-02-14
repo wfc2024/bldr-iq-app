@@ -109,6 +109,7 @@ export function QuantityCalculator({ onUseQuantity, currentQuantity }: QuantityC
                 <Input
                   id="length"
                   type="number"
+                  inputMode="decimal"
                   min="0"
                   step="0.1"
                   value={length}
@@ -122,6 +123,7 @@ export function QuantityCalculator({ onUseQuantity, currentQuantity }: QuantityC
                 <Input
                   id="width"
                   type="number"
+                  inputMode="decimal"
                   min="0"
                   step="0.1"
                   value={width}
@@ -156,6 +158,7 @@ export function QuantityCalculator({ onUseQuantity, currentQuantity }: QuantityC
                 <Input
                   id="perimeterLength"
                   type="number"
+                  inputMode="decimal"
                   min="0"
                   step="0.1"
                   value={perimeterLength}
@@ -169,6 +172,7 @@ export function QuantityCalculator({ onUseQuantity, currentQuantity }: QuantityC
                 <Input
                   id="perimeterWidth"
                   type="number"
+                  inputMode="decimal"
                   min="0"
                   step="0.1"
                   value={perimeterWidth}
@@ -205,6 +209,7 @@ export function QuantityCalculator({ onUseQuantity, currentQuantity }: QuantityC
                 <Label className="text-sm">Add Multiple Values</Label>
                 <Input
                   type="number"
+                  inputMode="decimal"
                   min="0"
                   step="0.1"
                   value={value1}
@@ -214,6 +219,7 @@ export function QuantityCalculator({ onUseQuantity, currentQuantity }: QuantityC
                 />
                 <Input
                   type="number"
+                  inputMode="decimal"
                   min="0"
                   step="0.1"
                   value={value2}
@@ -223,6 +229,7 @@ export function QuantityCalculator({ onUseQuantity, currentQuantity }: QuantityC
                 />
                 <Input
                   type="number"
+                  inputMode="decimal"
                   min="0"
                   step="0.1"
                   value={value3}
