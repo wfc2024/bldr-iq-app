@@ -363,6 +363,7 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                           <Label>GC Markup (%)</Label>
                           <Input
                             type="number"
+                            inputMode="decimal"
                             min="0"
                             step="0.01"
                             value={displayProject.gcMarkupPercentage}
@@ -659,6 +660,7 @@ export function ProjectsTab({ refreshTrigger }: ProjectsTabProps) {
                                 <Label>Quantity</Label>
                                 <Input
                                   type="number"
+                                  inputMode="decimal"
                                   min="0"
                                   step="1"
                                   value={item.quantity || ""}
