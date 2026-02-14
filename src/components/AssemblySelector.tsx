@@ -6,6 +6,7 @@ import { Badge } from './ui/badge';
 import { Package, CheckCircle, Percent, ChevronDown, ChevronUp, Home } from 'lucide-react';
 import { assemblies, assemblyCategories, Assembly, createCommonAreaAssembly } from '../data/assemblies';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { scopeOfWorkData } from '../data/scopeOfWork';
@@ -148,79 +149,99 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full flex-1 overflow-hidden flex flex-col">
-            <div className="overflow-x-auto pb-2 flex-shrink-0">
-              <TabsList className="inline-flex w-full sm:grid" style={{ gridTemplateColumns: sortedCategories.length > 0 ? `repeat(${sortedCategories.length}, minmax(0, 1fr))` : 'auto' }}>
+          {/* Mobile: Dropdown selector */}
+          <div className="sm:hidden flex-shrink-0">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
                 {sortedCategories.map(category => (
-                  <TabsTrigger key={category} value={category} className="text-xs whitespace-nowrap flex-shrink-0">
+                  <SelectItem key={category} value={category}>
                     {category}
-                  </TabsTrigger>
+                  </SelectItem>
                 ))}
-              </TabsList>
-            </div>
+              </SelectContent>
+            </Select>
+          </div>
 
-            {sortedCategories.map(category => (
-              <TabsContent key={category} value={category} className="space-y-3 mt-4 overflow-y-auto flex-1">
-                {allAssemblies
-                  .filter(a => a.category === category)
-                  .map(assembly => (
-                    <Card key={assembly.id} className="cursor-pointer hover:border-[#F7931E] transition-colors">
-                      <CardHeader className="pb-3">
-                        <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
-                          <div className="flex-1 w-full sm:w-auto">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <CardTitle className="text-sm sm:text-base">{assembly.name}</CardTitle>
-                              {assembly.scaleDiscounts && assembly.scaleDiscounts.some(d => d.discountPercent > 0) && (
-                                <Badge variant="secondary" className="text-xs">
-                                  <Percent className="size-3 mr-1" />
-                                  Volume Pricing
-                                </Badge>
-                              )}
-                            </div>
-                            <CardDescription className="text-xs mt-1">
-                              {assembly.description}
-                            </CardDescription>
-                          </div>
-                          <Button 
-                            size="sm" 
-                            onClick={() => handleSelectClick(assembly)}
-                            className="w-full sm:w-auto sm:ml-2 shrink-0"
-                          >
-                            Add Package
-                          </Button>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-1.5">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Package className="size-3.5 text-muted-foreground" />
-                            <span className="text-xs font-medium text-muted-foreground">
-                              {assembly.items.length} items included:
-                            </span>
-                          </div>
-                          {assembly.items.map((item, idx) => (
-                            <div key={idx} className="flex items-start gap-2 text-xs pl-5">
-                              <CheckCircle className="size-3 text-green-600 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <span className="text-muted-foreground break-words">
-                                  {item.scopeName}
-                                  {item.notes && (
-                                    <span className="text-xs italic ml-1">
-                                      ({item.notes})
-                                    </span>
-                                  )}
-                                </span>
-                                <span className="ml-2 font-medium whitespace-nowrap">Qty: {item.quantity}</span>
+          {/* Desktop: Tabs */}
+          <div className="hidden sm:block flex-shrink-0">
+            <TabsList className="grid w-full" style={{ gridTemplateColumns: sortedCategories.length > 0 ? `repeat(${sortedCategories.length}, minmax(0, 1fr))` : 'auto' }}>
+              {sortedCategories.map(category => (
+                <TabsTrigger key={category} value={category} className="text-xs">
+                  {category}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+
+          {/* Content area - scrollable */}
+          <div className="flex-1 overflow-y-auto">
+            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
+              {sortedCategories.map(category => (
+                <TabsContent key={category} value={category} className="space-y-3 mt-4">
+                  {allAssemblies
+                    .filter(a => a.category === category)
+                    .map(assembly => (
+                      <Card key={assembly.id} className="cursor-pointer hover:border-[#F7931E] transition-colors">
+                        <CardHeader className="pb-3">
+                          <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                            <div className="flex-1 w-full sm:w-auto">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <CardTitle className="text-sm sm:text-base">{assembly.name}</CardTitle>
+                                {assembly.scaleDiscounts && assembly.scaleDiscounts.some(d => d.discountPercent > 0) && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    <Percent className="size-3 mr-1" />
+                                    Volume Pricing
+                                  </Badge>
+                                )}
                               </div>
+                              <CardDescription className="text-xs mt-1">
+                                {assembly.description}
+                              </CardDescription>
                             </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </TabsContent>
-            ))}
-          </Tabs>
+                            <Button 
+                              size="sm" 
+                              onClick={() => handleSelectClick(assembly)}
+                              className="w-full sm:w-auto sm:ml-2 shrink-0"
+                            >
+                              Add Package
+                            </Button>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Package className="size-3.5 text-muted-foreground" />
+                              <span className="text-xs font-medium text-muted-foreground">
+                                {assembly.items.length} items included:
+                              </span>
+                            </div>
+                            {assembly.items.map((item, idx) => (
+                              <div key={idx} className="flex items-start gap-2 text-xs pl-5">
+                                <CheckCircle className="size-3 text-green-600 mt-0.5 flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <span className="text-muted-foreground break-words">
+                                    {item.scopeName}
+                                    {item.notes && (
+                                      <span className="text-xs italic ml-1">
+                                        ({item.notes})
+                                      </span>
+                                    )}
+                                  </span>
+                                  <span className="ml-2 font-medium whitespace-nowrap">Qty: {item.quantity}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
         </DialogContent>
       </Dialog>
 
