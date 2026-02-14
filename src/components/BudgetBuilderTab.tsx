@@ -810,10 +810,11 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="5">5%</SelectItem>
-                      <SelectItem value="10">10% (Recommended)</SelectItem>
-                      <SelectItem value="15">15%</SelectItem>
-                      <SelectItem value="20">20%</SelectItem>
+                      <SelectItem value="0">0% - I have preliminary plans</SelectItem>
+                      <SelectItem value="5">5% - Very confident in scope</SelectItem>
+                      <SelectItem value="10">10% - Mostly figured out (Recommended)</SelectItem>
+                      <SelectItem value="15">15% - About half-baked</SelectItem>
+                      <SelectItem value="20">20% - Just starting to explore</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
