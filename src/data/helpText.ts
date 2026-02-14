@@ -148,28 +148,6 @@ export const projectTemplates: ProjectTemplate[] = [
       { scopeName: "Bathroom Partitions (2 Restrooms: 3 stalls and 1 Urinal Screen)", quantity: 1, notes: "Typically 2 restrooms for restaurant" },
       { scopeName: "Bathroom Accessories per RR", quantity: 2, notes: "2 restrooms typically" }
     ]
-  },
-  {
-    name: "Medical Office Suite",
-    description: "Professional medical office with exam rooms and waiting area",
-    defaultGCMarkup: 15,
-    lineItems: [
-      { scopeName: "Demo Allowance (Mid Size Office/Retail/Restaurant Space) 2001 - 3500 sqft", quantity: 1, notes: "Remove existing office build-out" },
-      { scopeName: "10' Metal Stud Wall + Sheetrock", quantity: 0, notes: "Exam rooms, private offices, reception - measure linear feet" },
-      { scopeName: "Hollow Metal Frame + Hollow Metal Door + Hardware Installed", quantity: 0, notes: "Exam rooms, offices, restrooms - count doors needed" },
-      { scopeName: "Interior Paint (include total sqft of wall and ceiling being painted)", quantity: 0, notes: "All walls and ceilings" },
-      { scopeName: "LVT", quantity: 0, notes: "Medical grade flooring throughout" },
-      { scopeName: "Rubber Base", quantity: 0, notes: "Wall base - measure perimeter" },
-      { scopeName: "Accoustical Ceiling Grid and Tile", quantity: 0, notes: "Clean room ceiling system" },
-      { scopeName: "Electrical - General Distribution", quantity: 0, notes: "Medical equipment electrical - enter sqft" },
-      { scopeName: "Electrical - Lighting Allowance", quantity: 0, notes: "Medical office lighting - enter sqft" },
-      { scopeName: "Plumbing - New Fixtures (toilets, sinks, floor drains, etc.)", quantity: 0, notes: "Exam room sinks, restroom fixtures - count all" },
-      { scopeName: "New General Duct Work and Distribution", quantity: 0, notes: "HVAC adjustments - enter sqft if needed" },
-      { scopeName: "Sound Insulation", quantity: 0, notes: "HIPAA privacy - measure wall area needing sound control" },
-      { scopeName: "Finish Carpentry Allowance (Mid Size Office/Retail/Restaurant Space) 2001 - 3500 sqft", quantity: 1, notes: "Reception desk, casework, cabinetry" },
-      { scopeName: "Bathroom Accessories per RR", quantity: 2, notes: "Patient and staff restrooms" },
-      { scopeName: "Low Voltage Allowance space under 2500 sqft", quantity: 1, notes: "Data/phone infrastructure" }
-    ]
   }
 ];
 
