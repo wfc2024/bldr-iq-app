@@ -237,6 +237,7 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
               <Label htmlFor="quantity">Quantity</Label>
               <Input
                 type="number"
+                inputMode="decimal"
                 id="quantity"
                 min="1"
                 step="1"
