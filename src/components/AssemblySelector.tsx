@@ -140,22 +140,24 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
             Add Package
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Select a Pre-Built Package</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-base sm:text-lg">Select a Pre-Built Package</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">
               Save time with ready-made bundles of commonly needed items. Perfect for offices, bathrooms, and more.
             </DialogDescription>
           </DialogHeader>
 
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-            <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${allCategories.length}, 1fr)` }}>
-              {sortedCategories.map(category => (
-                <TabsTrigger key={category} value={category} className="text-xs">
-                  {category}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+            <div className="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0">
+              <TabsList className="inline-flex min-w-full sm:grid sm:w-full" style={{ gridTemplateColumns: sortedCategories.length > 0 ? `repeat(${sortedCategories.length}, minmax(0, 1fr))` : 'auto' }}>
+                {sortedCategories.map(category => (
+                  <TabsTrigger key={category} value={category} className="text-xs whitespace-nowrap px-3 sm:px-4">
+                    {category}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
 
             {sortedCategories.map(category => (
               <TabsContent key={category} value={category} className="space-y-3 mt-4">
@@ -164,10 +166,10 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
                   .map(assembly => (
                     <Card key={assembly.id} className="cursor-pointer hover:border-[#F7931E] transition-colors">
                       <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <CardTitle className="text-base">{assembly.name}</CardTitle>
+                        <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                          <div className="flex-1 w-full sm:w-auto">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <CardTitle className="text-sm sm:text-base">{assembly.name}</CardTitle>
                               {assembly.scaleDiscounts && assembly.scaleDiscounts.some(d => d.discountPercent > 0) && (
                                 <Badge variant="secondary" className="text-xs">
                                   <Percent className="size-3 mr-1" />
@@ -182,7 +184,7 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
                           <Button 
                             size="sm" 
                             onClick={() => handleSelectClick(assembly)}
-                            className="ml-2"
+                            className="w-full sm:w-auto sm:ml-2 shrink-0"
                           >
                             Add Package
                           </Button>
@@ -199,8 +201,8 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
                           {assembly.items.map((item, idx) => (
                             <div key={idx} className="flex items-start gap-2 text-xs pl-5">
                               <CheckCircle className="size-3 text-green-600 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1">
-                                <span className="text-muted-foreground">
+                              <div className="flex-1 min-w-0">
+                                <span className="text-muted-foreground break-words">
                                   {item.scopeName}
                                   {item.notes && (
                                     <span className="text-xs italic ml-1">
@@ -208,7 +210,7 @@ export function AssemblySelector({ onSelectAssembly, totalProjectSqft, existingL
                                     </span>
                                   )}
                                 </span>
-                                <span className="ml-2 font-medium">Qty: {item.quantity}</span>
+                                <span className="ml-2 font-medium whitespace-nowrap">Qty: {item.quantity}</span>
                               </div>
                             </div>
                           ))}
