@@ -1207,84 +1207,32 @@ export function BudgetBuilderTab({ onProjectSaved, resetForTutorial, autoStartFr
                     {/* Scope Gap Buffer - Only for Conceptual Template */}
                     {templateType === "Conceptual BLD w/ Pre-Packaged Assemblies" && (
                       <div className="border-l-2 border-blue-500 pl-4 py-2 bg-blue-50/50 dark:bg-blue-950/20">
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="font-medium">Scope Gap Buffer:</span>
-                          <HelpTooltip content="This buffer accounts for scope items commonly missed in conceptual assemblies, including electrical work triggered by layout changes, HVAC adjustments, patching/finishing, blocking for fixtures, and unforeseen site conditions. Standard practice for preliminary budgets." />
+                        <div className="flex justify-between items-center gap-4 mb-2">
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span>Scope Gap Buffer:</span>
+                            <HelpTooltip content="This buffer accounts for scope items commonly missed in conceptual assemblies, including electrical work triggered by layout changes, HVAC adjustments, patching/finishing, blocking for fixtures, and unforeseen site conditions. Standard practice for preliminary budgets." />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Select
+                              value={scopeGapBuffer.toString()}
+                              onValueChange={(value) => setScopeGapBuffer(parseInt(value))}
+                            >
+                              <SelectTrigger className="w-[280px] h-8">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="5">5% - Very confident in scope</SelectItem>
+                                <SelectItem value="10">10% - Mostly figured out (Recommended)</SelectItem>
+                                <SelectItem value="15">15% - About half-baked</SelectItem>
+                                <SelectItem value="20">20% - Just starting to explore</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <span className="font-mono text-right">{formatCurrency(calculateScopeGapBuffer())}</span>
+                          </div>
                         </div>
-                        
-                        <RadioGroup 
-                          value={scopeGapBuffer.toString()} 
-                          onValueChange={(value) => setScopeGapBuffer(parseInt(value))}
-                          className="space-y-2"
-                        >
-                          <label 
-                            htmlFor="buffer-5" 
-                            className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                              scopeGapBuffer === 5 
-                                ? 'border-[#F7931E] bg-orange-50/50 dark:bg-orange-950/20' 
-                                : 'border-border hover:border-[#F7931E]/50'
-                            }`}
-                          >
-                            <RadioGroupItem value="5" id="buffer-5" className="mt-0.5" />
-                            <div className="flex-1 space-y-0.5">
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="font-medium text-sm">5% - Very confident in scope</div>
-                                <div className="font-mono text-sm text-muted-foreground">{formatCurrency(calculateSubtotal() * 0.05)}</div>
-                              </div>
-                            </div>
-                          </label>
-
-                          <label 
-                            htmlFor="buffer-10" 
-                            className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                              scopeGapBuffer === 10 
-                                ? 'border-[#F7931E] bg-orange-50/50 dark:bg-orange-950/20' 
-                                : 'border-border hover:border-[#F7931E]/50'
-                            }`}
-                          >
-                            <RadioGroupItem value="10" id="buffer-10" className="mt-0.5" />
-                            <div className="flex-1 space-y-0.5">
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="font-medium text-sm">10% - Mostly figured out <span className="text-[#F7931E]">(Recommended)</span></div>
-                                <div className="font-mono text-sm text-muted-foreground">{formatCurrency(calculateSubtotal() * 0.10)}</div>
-                              </div>
-                            </div>
-                          </label>
-
-                          <label 
-                            htmlFor="buffer-15" 
-                            className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                              scopeGapBuffer === 15 
-                                ? 'border-[#F7931E] bg-orange-50/50 dark:bg-orange-950/20' 
-                                : 'border-border hover:border-[#F7931E]/50'
-                            }`}
-                          >
-                            <RadioGroupItem value="15" id="buffer-15" className="mt-0.5" />
-                            <div className="flex-1 space-y-0.5">
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="font-medium text-sm">15% - About half-baked</div>
-                                <div className="font-mono text-sm text-muted-foreground">{formatCurrency(calculateSubtotal() * 0.15)}</div>
-                              </div>
-                            </div>
-                          </label>
-
-                          <label 
-                            htmlFor="buffer-20" 
-                            className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                              scopeGapBuffer === 20 
-                                ? 'border-[#F7931E] bg-orange-50/50 dark:bg-orange-950/20' 
-                                : 'border-border hover:border-[#F7931E]/50'
-                            }`}
-                          >
-                            <RadioGroupItem value="20" id="buffer-20" className="mt-0.5" />
-                            <div className="flex-1 space-y-0.5">
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="font-medium text-sm">20% - Just starting to explore</div>
-                                <div className="font-mono text-sm text-muted-foreground">{formatCurrency(calculateSubtotal() * 0.20)}</div>
-                              </div>
-                            </div>
-                          </label>
-                        </RadioGroup>
+                        <p className="text-xs text-muted-foreground italic">
+                          Adjustable based on project complexity and stage
+                        </p>
                       </div>
                     )}
                     
