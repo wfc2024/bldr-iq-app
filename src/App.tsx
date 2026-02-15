@@ -47,14 +47,14 @@ function LandingPage({ onShowAuth }: { onShowAuth: () => void }) {
       <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '96px 24px 96px 24px' }}>
         <div style={{ textAlign: 'center' }}>
           <h2 style={{ 
-            fontSize: '48px',
+            fontSize: '32px', 
             fontWeight: 700, 
             color: '#1B2D4F', 
             marginBottom: '64px', 
             lineHeight: '1.2',
             padding: '0 16px'
           }}>
-            Know in minutes, not weeks, if a deal is financially realistic.
+            Minutes, not weeks, to deal clarity.
           </h2>
           
           <p style={{ 
